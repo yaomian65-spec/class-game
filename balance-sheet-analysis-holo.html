@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>资产负债表分析 - 全息闪卡</title>
+    <style>
+        .back-home-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-size: 1rem;
+            font-weight: bold;
+            text-decoration: none;
+            z-index: 9999;
+            transition: all 0.3s ease;
+            font-family: sans-serif;
+        }
+
+        .back-home-btn:hover {
+            background: rgba(0, 0, 0, 0.9);
+            border-color: rgba(255, 255, 255, 0.6);
+            transform: translateX(-5px);
+        }
+        body {
+            font-family: 'Consolas', 'Courier New', Courier, monospace;
+            background-color: #050b14;
+            background-image:
+                radial-gradient(circle at 15% 50%, rgba(0, 243, 255, 0.08), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(163, 113, 247, 0.08), transparent 25%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            color: #e0fbfc;
+            overflow: hidden;
+        }
+        .hud-header {
+            margin-bottom: 30px;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: #00f3ff;
+            text-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
+        }
+        .progress-tracker {
+            font-size: 1rem;
+            color: #a371f7;
+            margin-bottom: 20px;
+            padding: 5px 15px;
+            border: 1px solid #a371f7;
+            border-radius: 4px;
+            background: rgba(163, 113, 247, 0.1);
+            box-shadow: 0 0 10px rgba(163, 113, 247, 0.2);
+        }
+        .holo-scene {
+            width: 90%;
+            max-width: 650px;
+            height: 450px;
+            perspective: 1500px;
+        }
+        .holo-card {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform-style: preserve-3d;
+        }
+        .holo-card.flipped {
+            transform: rotateY(180deg);
+        }
+        .card-face {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            padding: 40px;
+            box-sizing: border-box;
+            border-radius: 12px;
+            border: 1px solid rgba(0, 243, 255, 0.3);
+            background: rgba(10, 17, 40, 0.85);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 0 30px rgba(0, 243, 255, 0.1), inset 0 0 20px rgba(0, 243, 255, 0.05);
+        }
+        .card-front {
+            align-items: stretch;
+            justify-content: flex-start;
+        }
+        .card-back {
+            transform: rotateY(180deg);
+            background: rgba(10, 17, 40, 0.95);
+            border-color: #a371f7;
+            box-shadow: 0 0 30px rgba(163, 113, 247, 0.15), inset 0 0 20px rgba(163, 113, 247, 0.05);
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+        .tag-line {
+            font-size: 0.85rem;
+            color: #00f3ff;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(0, 243, 255, 0.2);
+            padding-bottom: 5px;
+        }
+        .question-text {
+            font-size: 1.25rem;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            color: #ffffff;
+        }
+        .interaction-zone {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: auto;
+        }
+        .btn {
+            background: rgba(0, 243, 255, 0.05);
+            border: 1px solid rgba(0, 243, 255, 0.4);
+            color: #e0fbfc;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 1.05rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: left;
+        }
+        .btn:hover:not(:disabled) {
+            background: rgba(0, 243, 255, 0.2);
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.4);
+            transform: translateX(5px);
+        }
+        .btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+        .btn.correct {
+            background: rgba(57, 255, 20, 0.2);
+            border-color: #39ff14;
+            color: #39ff14;
+            box-shadow: 0 0 20px rgba(57, 255, 20, 0.3);
+        }
+        .btn.wrong {
+            background: rgba(255, 0, 60, 0.2);
+            border-color: #ff003c;
+            color: #ff003c;
+            box-shadow: 0 0 20px rgba(255, 0, 60, 0.3);
+        }
+        .fill-input {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #00f3ff;
+            color: #00f3ff;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 1.2rem;
+            text-align: center;
+            outline: none;
+            text-transform: lowercase;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+        .fill-input:focus {
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.5);
+        }
+        .submit-btn {
+            background: #00f3ff;
+            color: #050b14;
+            font-weight: bold;
+            text-align: center;
+        }
+        .submit-btn:hover:not(:disabled) {
+            background: #5cffff;
+            transform: none;
+        }
+        .answer-title {
+            color: #a371f7;
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            letter-spacing: 2px;
+        }
+        .explanation-text {
+            font-size: 1.15rem;
+            line-height: 1.7;
+            color: #e0fbfc;
+            margin-bottom: 40px;
+        }
+        .next-btn {
+            background: transparent;
+            border: 1px solid #a371f7;
+            color: #a371f7;
+            padding: 12px 30px;
+            border-radius: 20px;
+            font-family: inherit;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .next-btn:hover {
+            background: rgba(163, 113, 247, 0.2);
+            box-shadow: 0 0 15px rgba(163, 113, 247, 0.5);
+        }
+    </style>
+</head>
+<body>
+<a href="index.html" class="back-home-btn">← 返回控制中心</a>
+    <div class="hud-header">
+        <h2>全息数据核阅系统</h2>
+    </div>
+
+    <div class="progress-tracker" id="progress">正在初始化...</div>
+
+    <div class="holo-scene">
+        <div class="holo-card" id="card">
+
+            <div class="card-face card-front" id="front-face">
+                </div>
+
+            <div class="card-face card-back">
+                <div class="answer-title">DATA DECRYPTED // 核心逻辑解密</div>
+                <div class="explanation-text" id="explanation"></div>
+                <button class="next-btn" onclick="nextCard()">加载下一区块</button>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        const db = [
+            {
+                type: 'tf',
+                tag: 'MODULE_01_THEORY',
+                q: "逻辑判断：资产负债表反映的是企业在一段特定时期（如一个完整的会计年度）内的整体财务状况变化。",
+                options: ["True (真)", "False (假)"],
+                correct: 1, // False
+                a: "逻辑判定为假。资产负债表反映的是企业在【某一时点】（通常为期末）的静态财务状况快照，而非一段时期内的动态变化。"
+            },
+            {
+                type: 'mcq',
+                tag: 'MODULE_01_STRUCTURE',
+                q: "参数选择：在资产负债表的适应性分析中，如果企业流动资产的一部分资金需要使用流动负债来满足，另一部分资金需要由长期负债来满足，这属于哪种资本结构？",
+                options: ["保守结构", "稳健结构", "平衡结构", "风险结构"],
+                correct: 1,
+                a: "稳健结构。这种结构利用部分长期负债来支撑流动资产，既保证了较强的短期偿债能力，又保留了一定的资金弹性，是实务中较为合理的配置状态。"
+            },
+            {
+                type: 'fill',
+                tag: 'MODULE_02_PYTHON',
+                q: "指令填空：在Python中处理资产负债表时，用于将特定的异常字符（如“--”或“缺失”）替换为指定数值的 Pandas 内置函数是 ______。",
+                placeholder: "输入唯一的纯英文函数名",
+                correct: "replace",
+                a: "核心函数：replace()。在数据清洗阶段，直接调用 df.replace('--', np.nan) 能够高效地将无意义的占位符转化为标准的缺失值对象以便后续运算。"
+            },
+            {
+                type: 'mcq',
+                tag: 'MODULE_02_PYTHON',
+                q: "参数选择：在使用 requests 库获取网络数据时，调用 r.status_code 属性，返回以下哪个状态码表示客户端已成功获取网页内容？",
+                options: ["代码 404", "代码 500", "代码 200", "代码 302"],
+                correct: 2,
+                a: "状态码 200。在 HTTP 协议底层，200 代表请求已被服务器成功接收并处理，此时可以安全地提取响应内容中的文本或二进制数据。"
+            },
+            {
+                type: 'mcq',
+                tag: 'MODULE_01_ITEMS',
+                q: "参数选择：企业在二级市场购入股票并划分为“交易性金融资产”，其底层商业逻辑和持有目的是什么？",
+                options: ["获取长期稳定的股利分配", "短期内买入卖出获取市场价差收益", "实现对被投资企业的绝对控股", "作为企业的长期固定资产储备"],
+                correct: 1,
+                a: "短期逐利。交易性金融资产的本质是为了交易目的而持有，通过高频买入和卖出来获取市场波动的价差收益，其流动性极强且盈亏变动频繁。"
+            },
+            {
+                type: 'tf',
+                tag: 'MODULE_02_PYTHON',
+                q: "逻辑判断：在 Pandas 的数据清洗操作中，调用 dropna(how='all') 意味着只要行或列中存在哪怕一个缺失值，就会将该整行或整列直接删除。",
+                options: ["True (真)", "False (假)"],
+                correct: 1, // False
+                a: "逻辑判定为假。参数 how='all' 指示底层引擎只有当该行或该列【全部】数据都为缺失值时才会触发删除操作。如果是只要存在一个就删除，应使用 how='any'。"
+            },
+            {
+                type: 'tf',
+                tag: 'MODULE_01_ITEMS',
+                q: "逻辑判断：根据财务分析理论，企业账面持有的货币资金越多越好，因为充足的现金能彻底消除流动性风险并带来高额的直接投资回报。",
+                options: ["True (真)", "False (假)"],
+                correct: 1, // False
+                a: "逻辑判定为假。货币资金的收益性在所有资产中通常是最低的。过度囤积会导致大量资金闲置，极大地拉低企业的整体资金利用效率。"
+            },
+            {
+                type: 'mcq',
+                tag: 'MODULE_01_ITEMS',
+                q: "参数选择：对企业的应收账款进行细致的“账龄分析”，其在内部管理中最核心的作用是什么？",
+                options: ["增加企业的无形资产规模", "加快货款回笼并减少坏账损失", "提高企业的长期债权投资回报率", "降低企业当年应交的所得税额"],
+                correct: 1,
+                a: "防范信用风险。通过直观反映应收账款滞留在账面上的时间长短，企业能针对性地对不同逾期客户采取催收策略，从而加快资金流转并阻断坏账发生。"
+            },
+            {
+                type: 'fill',
+                tag: 'MODULE_02_PYTHON',
+                q: "指令填空：在Pandas中，如果需要将资产负债表数据框的行列进行翻转互换（例如将列名变为索引行），除了使用 .T 属性外，还可以调用完整的 df.______ 函数。",
+                placeholder: "输入唯一的纯英文函数名",
+                correct: "transpose",
+                a: "核心函数：transpose()。矩阵转置操作能够快速改变数据的观测视角，使数据结构完美契合后续财务指标计算的向量化运算逻辑。"
+            },
+            {
+                type: 'fill',
+                tag: 'MODULE_02_PYTHON',
+                q: "指令填空：在执行爬虫实训任务时，用于自动解析网页HTML节点并直接提取所有内嵌表格为DataFrame对象的核心Pandas函数是 read_______()。",
+                placeholder: "输入唯一的纯英文后缀",
+                correct: "html",
+                a: "核心接口：read_html()。该函数底层集成了强大的解析引擎，能自动探查DOM树中的 <table> 标签并将其转化为结构化的二维数据表。"
+            }
+        ];
+
+        let index = 0;
+        const frontFace = document.getElementById('front-face');
+        const card = document.getElementById('card');
+        const progress = document.getElementById('progress');
+        const explanation = document.getElementById('explanation');
+
+        function loadCard() {
+            card.classList.remove('flipped');
+            const current = db[index];
+            progress.innerText = `数据阵列: ${index + 1} / ${db.length}`;
+
+            let html = `
+                <div class="tag-line">[ ${current.tag} ]</div>
+                <div class="question-text">${current.q}</div>
+                <div class="interaction-zone">
+            `;
+
+            if (current.type === 'mcq' || current.type === 'tf') {
+                current.options.forEach((opt, idx) => {
+                    html += `<button class="btn" onclick="verifyChoice(${idx}, this)">${opt}</button>`;
+                });
+            } else if (current.type === 'fill') {
+                html += `
+                    <input type="text" id="fillInput" class="fill-input" placeholder="${current.placeholder}" autocomplete="off">
+                    <button class="btn submit-btn" onclick="verifyFill()">执行注入并比对</button>
+                `;
+            }
+
+            html += `</div>`;
+
+            setTimeout(() => {
+                frontFace.innerHTML = html;
+                explanation.innerText = current.a;
+            }, 300); // 延迟等待卡片翻回正面
+        }
+
+        function verifyChoice(selectedIndex, btnEl) {
+            const current = db[index];
+            const allBtns = frontFace.querySelectorAll('.btn');
+            allBtns.forEach(b => b.disabled = true);
+
+            if (selectedIndex === current.correct) {
+                btnEl.classList.add('correct');
+            } else {
+                btnEl.classList.add('wrong');
+                allBtns[current.correct].classList.add('correct');
+            }
+            triggerFlip();
+        }
+
+        function verifyFill() {
+            const current = db[index];
+            const inputEl = document.getElementById('fillInput');
+            const submitBtn = frontFace.querySelector('.submit-btn');
+            const val = inputEl.value.trim().toLowerCase();
+
+            inputEl.disabled = true;
+            submitBtn.disabled = true;
+
+            if (val === current.correct.toLowerCase()) {
+                inputEl.style.borderColor = '#39ff14';
+                inputEl.style.color = '#39ff14';
+                inputEl.style.boxShadow = '0 0 15px rgba(57, 255, 20, 0.5)';
+            } else {
+                inputEl.style.borderColor = '#ff003c';
+                inputEl.style.color = '#ff003c';
+                inputEl.style.boxShadow = '0 0 15px rgba(255, 0, 60, 0.5)';
+                inputEl.value = `ERR: [ ${val} ] -> EXPECTED: [ ${current.correct} ]`;
+            }
+            triggerFlip();
+        }
+
+        function triggerFlip() {
+            setTimeout(() => {
+                card.classList.add('flipped');
+            }, 800);
+        }
+
+        function nextCard() {
+            if (index < db.length - 1) {
+                index++;
+                loadCard();
+            } else {
+                frontFace.innerHTML = `
+                    <div class="tag-line">[ SYSTEM_HALTED ]</div>
+                    <div class="question-text" style="color:#00f3ff; text-align:center; margin-top:50px;">
+                        所有资产负债表与Python数据处理核心区块已成功刻录入库。
+                    </div>
+                `;
+                card.classList.remove('flipped');
+                progress.innerText = "任务圆满完成";
+            }
+        }
+
+        // 初始化启动
+        loadCard();
+    </script>
+</body>
+</html>

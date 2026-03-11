@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>财务综合分析 - 企业体检监护仪</title>
+    <style>
+        .back-home-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-size: 1rem;
+            font-weight: bold;
+            text-decoration: none;
+            z-index: 9999;
+            transition: all 0.3s ease;
+            font-family: sans-serif;
+        }
+
+        .back-home-btn:hover {
+            background: rgba(0, 0, 0, 0.9);
+            border-color: rgba(255, 255, 255, 0.6);
+            transform: translateX(-5px);
+        }
+        :root {
+            --bg-dark: #050a0e;
+            --monitor-border: #142838;
+            --cyan-glow: #00e5ff;
+            --cyan-dim: #007a88;
+            --alert-red: #ff003c;
+            --healthy-green: #00ff66;
+            --text-main: #e0f7fa;
+        }
+        body {
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            background-color: var(--bg-dark);
+            background-image:
+                linear-gradient(rgba(0, 229, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 229, 255, 0.03) 1px, transparent 1px);
+            background-size: 30px 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            color: var(--text-main);
+            overflow: hidden;
+            position: relative;
+        }
+        /* 扫描线特效 */
+        body::after {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 100;
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+        }
+        .header-panel {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 90%;
+            max-width: 800px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--cyan-dim);
+            z-index: 10;
+        }
+        .monitor-title {
+            font-size: 1.8rem;
+            color: var(--cyan-glow);
+            letter-spacing: 3px;
+            margin: 0;
+            text-shadow: 0 0 10px rgba(0, 229, 255, 0.5);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .recording-dot {
+            width: 12px;
+            height: 12px;
+            background-color: var(--alert-red);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--alert-red);
+            animation: blink 1s infinite;
+        }
+        .status-tracker {
+            font-family: 'Consolas', monospace;
+            font-size: 1.2rem;
+            color: var(--cyan-glow);
+        }
+        .monitor-screen {
+            width: 90%;
+            max-width: 800px;
+            height: 480px;
+            perspective: 1200px;
+            z-index: 10;
+        }
+        .card-body {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-style: preserve-3d;
+        }
+        .card-body.flipped {
+            transform: rotateX(180deg);
+        }
+        .face {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            padding: 35px;
+            box-sizing: border-box;
+            border-radius: 12px;
+            border: 1px solid var(--cyan-dim);
+            background: rgba(4, 16, 24, 0.85);
+            box-shadow: 0 0 30px rgba(0, 229, 255, 0.1), inset 0 0 20px rgba(0, 229, 255, 0.05);
+        }
+        .front-face {
+            align-items: stretch;
+            justify-content: flex-start;
+        }
+        .back-face {
+            transform: rotateX(180deg);
+            background: rgba(4, 20, 16, 0.9);
+            border-color: var(--healthy-green);
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+        .back-face.critical {
+            background: rgba(24, 4, 4, 0.9);
+            border-color: var(--alert-red);
+        }
+        .tag-line {
+            font-family: 'Consolas', monospace;
+            font-size: 1rem;
+            color: var(--cyan-glow);
+            margin-bottom: 20px;
+            padding-bottom: 8px;
+            border-bottom: 1px dashed var(--cyan-dim);
+        }
+        .question-text {
+            font-size: 1.3rem;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            font-weight: 500;
+        }
+        .interaction-zone {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: auto;
+        }
+        .btn-opt {
+            background: rgba(0, 229, 255, 0.05);
+            border: 1px solid var(--cyan-dim);
+            color: var(--text-main);
+            padding: 15px;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-opt:hover:not(:disabled) {
+            background: rgba(0, 229, 255, 0.15);
+            border-color: var(--cyan-glow);
+            box-shadow: 0 0 15px rgba(0, 229, 255, 0.3);
+            padding-left: 25px;
+        }
+        .btn-opt:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+        .btn-opt.correct {
+            background: rgba(0, 255, 102, 0.15);
+            border-color: var(--healthy-green);
+            color: var(--healthy-green);
+            box-shadow: 0 0 15px rgba(0, 255, 102, 0.3);
+        }
+        .btn-opt.wrong {
+            background: rgba(255, 0, 60, 0.15);
+            border-color: var(--alert-red);
+            color: var(--alert-red);
+            box-shadow: 0 0 15px rgba(255, 0, 60, 0.3);
+        }
+        .input-group {
+            display: flex;
+            gap: 15px;
+        }
+        .vital-input {
+            flex-grow: 1;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid var(--cyan-glow);
+            color: var(--cyan-glow);
+            padding: 15px;
+            border-radius: 6px;
+            font-size: 1.2rem;
+            text-align: center;
+            outline: none;
+            letter-spacing: 2px;
+            font-family: 'Consolas', monospace;
+        }
+        .vital-input:focus {
+            box-shadow: 0 0 15px rgba(0, 229, 255, 0.4);
+        }
+        .inject-btn {
+            background: var(--cyan-dim);
+            color: #fff;
+            border: 1px solid var(--cyan-glow);
+            padding: 0 25px;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        .inject-btn:hover:not(:disabled) {
+            background: var(--cyan-glow);
+            color: #000;
+            box-shadow: 0 0 20px var(--cyan-glow);
+        }
+        .diag-title {
+            font-size: 1.6rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            letter-spacing: 2px;
+        }
+        .healthy-title { color: var(--healthy-green); text-shadow: 0 0 10px rgba(0,255,102,0.5); }
+        .critical-title { color: var(--alert-red); text-shadow: 0 0 10px rgba(255,0,60,0.5); }
+
+        .diag-text {
+            font-size: 1.2rem;
+            line-height: 1.7;
+            margin-bottom: 40px;
+            color: var(--text-main);
+            text-align: justify;
+        }
+        .next-btn {
+            background: transparent;
+            border: 1px solid var(--text-main);
+            color: var(--text-main);
+            padding: 12px 35px;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .next-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+    </style>
+</head>
+<body>
+<a href="index.html" class="back-home-btn">← 返回控制中心</a>
+    <div class="header-panel">
+        <h2 class="monitor-title">
+            <div class="recording-dot"></div>
+            企业生命体征监护系统
+        </h2>
+        <div class="status-tracker" id="tracker">SCAN: 1 / 8</div>
+    </div>
+
+    <div class="monitor-screen">
+        <div class="card-body" id="card-body">
+
+            <div class="face front-face" id="front-face">
+                </div>
+
+            <div class="face back-face" id="back-face">
+                <div class="diag-title" id="diag-title">VITAL SIGNS STABLE</div>
+                <div class="diag-text" id="diag-text"></div>
+                <button class="next-btn" onclick="nextScan()">执行下一次扫描</button>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        const db = [
+            {
+                type: 'mcq',
+                tag: 'SYMPTOM_SCAN: 杜邦分析核心',
+                q: "靶点筛查：杜邦分析法是财务综合诊断的经典模型。在这个模型中，处于最顶端、被视为企业“最终健康指数”的指标是哪个？",
+                options: ["总资产周转率", "资产负债率", "净资产收益率 (ROE)", "营业毛利率"],
+                correct: 2,
+                a: "净资产收益率（ROE）是杜邦分析的核心。它直接回答了股东最关心的问题：投入企业的每一块钱本金，最终能带来多少净回报。其他所有指标都是对这个核心指标的层层拆解。"
+            },
+            {
+                type: 'fill',
+                tag: 'MEDICATION: 杜邦拆解公式',
+                q: "药剂注入：在杜邦分析模型中，净资产收益率 = 净利润率 × 总资产周转率 × ______。",
+                placeholder: "输入四个汉字",
+                correct: "权益乘数",
+                a: "核心机制：权益乘数代表了企业的财务杠杆大小。它反映了企业运用债务资金进行经营的程度，杠杆越高，放大收益的同时也成倍放大了资金断裂的风险。"
+            },
+            {
+                type: 'mcq',
+                tag: 'DIAGNOSIS: 商业模式判定',
+                q: "症状诊断：体检发现某企业的“总资产周转率”非常高，但“净利润率”极低。这通常符合哪种商业模式的生理特征？",
+                options: ["三年不开张，开张吃三年的重型机械", "薄利多销的大型连锁超市", "高度垄断的暴利行业", "完全依靠借款度日的僵尸企业"],
+                correct: 1,
+                a: "这是典型的“薄利多销”模式。周转快代表货品卖得快、资金回笼迅速；净利润率低代表单件商品的利润极其微薄。大型商超正是通过极高的周转率来弥补低利润率，从而维持整体的健康运转。"
+            },
+            {
+                type: 'tf',
+                tag: 'LOGIC_CHECK: 四大能力界定',
+                q: "逻辑判断：在对企业进行“体检”时，营运能力指标主要用于评估企业到底赚了多少钱，是衡量利润高低的最直接指标。",
+                options: ["逻辑正确 (True)", "逻辑谬误 (False)"],
+                correct: 1, // False
+                a: "逻辑更正：营运能力衡量的是资产流转和运营的效率（比如存货积压不积压、应收账款收得快不快）。盈利能力才是直接评估企业赚取利润多少的专项指标。"
+            },
+            {
+                type: 'fill',
+                tag: 'MEDICATION: 免疫力评估',
+                q: "药剂注入：在四大能力分析中，评估企业是否有足够的流动资金或变现能力来偿还到期债务的指标，统称为______能力分析。",
+                placeholder: "输入两个汉字",
+                correct: "偿债",
+                a: "核心机制：偿债能力就像企业的免疫防御系统。不管企业平时利润多高，一旦面临债务到期而无法偿还的“急性并发症”，企业随时可能面临破产清算的致死危机。"
+            },
+            {
+                type: 'tf',
+                tag: 'LOGIC_CHECK: 沃尔评分法',
+                q: "逻辑判断：沃尔评分法是一种将多个不同的财务比率（如流动比率、净资产收益率等）赋予不同的权重，用线性关系结合起来进行综合打分的评估方法。",
+                options: ["逻辑正确 (True)", "逻辑谬误 (False)"],
+                correct: 0, // True
+                a: "逻辑核实：沃尔评分法通过设定各项指标的标准值和权重，计算出各项指标的得分并汇总，最终给出一个综合的总分。这就像给体检报告打出一个综合的健康分数一样直观。"
+            },
+            {
+                type: 'mcq',
+                tag: 'INSTRUMENT: Pyecharts 基础',
+                q: "仪器操作：在 Python 中使用 pyecharts 库生成财务可视化图表时，要创建一个柱状图对象，应该调用哪个基础类？",
+                options: ["Line()", "Bar()", "Pie()", "Scatter()"],
+                correct: 1,
+                a: "基础操作：Bar() 是用于实例化柱状图的核心对象。通过给柱状图填充不同年度的财务数据，我们可以极其直观地观察到企业各项指标的横向规模对比。"
+            },
+            {
+                type: 'fill',
+                tag: 'INSTRUMENT: 图表层叠技术',
+                q: "药剂注入：在 pyecharts 中，如果你想把净利润率的折线图（Line）直接叠加到资产总额的柱状图（Bar）上，你需要调用的核心组合函数是 ______()。",
+                placeholder: "输入纯英文函数名",
+                correct: "overlap",
+                a: "底层操作：overlap() 函数能够打破单一图表的限制，将两种不同类型的图表在同一个坐标系内层叠显示。这对于同时展示规模（柱状）和趋势比例（折线）的财务综合分析至关重要。"
+            }
+        ];
+
+        let index = 0;
+        const frontFace = document.getElementById('front-face');
+        const backFace = document.getElementById('back-face');
+        const cardBody = document.getElementById('card-body');
+        const tracker = document.getElementById('tracker');
+        const diagTitle = document.getElementById('diag-title');
+        const diagText = document.getElementById('diag-text');
+
+        function loadScan() {
+            cardBody.classList.remove('flipped');
+            const current = db[index];
+            tracker.innerText = `SCAN: ${index + 1} / ${db.length}`;
+
+            let html = `
+                <div class="tag-line">${current.tag}</div>
+                <div class="question-text">${current.q}</div>
+                <div class="interaction-zone">
+            `;
+
+            if (current.type === 'mcq' || current.type === 'tf') {
+                current.options.forEach((opt, idx) => {
+                    html += `<button class="btn-opt" onclick="verifyDiag(${idx}, this)">${opt}</button>`;
+                });
+            } else if (current.type === 'fill') {
+                html += `
+                    <div class="input-group">
+                        <input type="text" id="vitalInput" class="vital-input" placeholder=">> ${current.placeholder}" autocomplete="off">
+                        <button class="inject-btn" onclick="verifyInject()">注入参数</button>
+                    </div>
+                `;
+            }
+
+            html += `</div>`;
+
+            setTimeout(() => {
+                frontFace.innerHTML = html;
+            }, 300);
+        }
+
+        function triggerFlip(isCorrect) {
+            const current = db[index];
+            diagText.innerText = current.a;
+
+            if (isCorrect) {
+                backFace.classList.remove('critical');
+                diagTitle.className = 'diag-title healthy-title';
+                diagTitle.innerText = "VITAL SIGNS STABLE // 体征平稳";
+            } else {
+                backFace.classList.add('critical');
+                diagTitle.className = 'diag-title critical-title';
+                diagTitle.innerText = "VITAL SIGNS CRITICAL // 体征异常";
+            }
+
+            if (index === db.length - 1) {
+                backFace.querySelector('.next-btn').innerText = "结束体检并断开仪器";
+            }
+
+            setTimeout(() => {
+                cardBody.classList.add('flipped');
+            }, 800);
+        }
+
+        function verifyDiag(selectedIndex, btnEl) {
+            const current = db[index];
+            const allBtns = frontFace.querySelectorAll('.btn-opt');
+            allBtns.forEach(b => b.disabled = true);
+
+            const isCorrect = (selectedIndex === current.correct);
+            if (isCorrect) {
+                btnEl.classList.add('correct');
+            } else {
+                btnEl.classList.add('wrong');
+                allBtns[current.correct].classList.add('correct');
+            }
+            triggerFlip(isCorrect);
+        }
+
+        function verifyInject() {
+            const current = db[index];
+            const inputEl = document.getElementById('vitalInput');
+            const injectBtn = frontFace.querySelector('.inject-btn');
+
+            inputEl.disabled = true;
+            injectBtn.disabled = true;
+
+            const val = inputEl.value.trim().toLowerCase();
+            const correctVal = current.correct.toLowerCase();
+            const isCorrect = (val === correctVal);
+
+            if (isCorrect) {
+                inputEl.style.borderColor = "var(--healthy-green)";
+                inputEl.style.color = "var(--healthy-green)";
+            } else {
+                inputEl.style.borderColor = "var(--alert-red)";
+                inputEl.style.color = "var(--alert-red)";
+                inputEl.value = `ERR: 靶向药物应为 [ ${current.correct} ]`;
+            }
+            triggerFlip(isCorrect);
+        }
+
+        function nextScan() {
+            if (index < db.length - 1) {
+                index++;
+                loadScan();
+            } else {
+                frontFace.innerHTML = `
+                    <div class="tag-line">DIAGNOSIS_COMPLETE</div>
+                    <div class="question-text" style="color:var(--healthy-green); text-align:center; margin-top:60px;">
+                        所有财务生命体征与 Python 叠加技术已检测完毕。
+                    </div>
+                `;
+                cardBody.classList.remove('flipped');
+                tracker.innerText = "MONITORING CONCLUDED";
+            }
+        }
+
+        loadScan();
+    </script>
+</body>
+</html>

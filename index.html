@@ -3,233 +3,207 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>财务大数据知识互动挑战</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>财务大数据分析 - 课程实训枢纽</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700&display=swap');
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: rgba(20, 27, 45, 0.7);
+            --accent-blue: #00d2ff;
+            --accent-purple: #9d4edd;
+            --text-main: #e2e8f0;
+            --text-muted: #94a3b8;
+        }
         body {
-            font-family: 'Noto+Sans+SC', sans-serif;
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            background-image:
+                radial-gradient(circle at 15% 50%, rgba(0, 210, 255, 0.08), transparent 30%),
+                radial-gradient(circle at 85% 30%, rgba(157, 78, 221, 0.08), transparent 30%);
+            color: var(--text-main);
+            margin: 0;
+            padding: 40px 20px;
             min-height: 100vh;
             display: flex;
+            flex-direction: column;
             align-items: center;
-            justify-content: center;
+        }
+        .hub-header {
+            text-align: center;
+            margin-bottom: 50px;
+            animation: fadeInDown 0.8s ease-out;
+        }
+        .hub-header h1 {
+            font-size: 2.8rem;
+            margin: 0 0 15px 0;
+            background: linear-gradient(to right, var(--accent-blue), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 2px;
+        }
+        .hub-header p {
+            font-size: 1.2rem;
+            color: var(--text-muted);
             margin: 0;
-            color: #f8fafc;
+            letter-spacing: 1px;
         }
-        .glass-card {
-            background: rgba(30, 41, 59, 0.7);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            width: 100%;
+            max-width: 1200px;
+            animation: fadeInUp 1s ease-out;
         }
-        .progress-bar {
-            transition: width 0.3s ease-in-out;
+        .module-card {
+            background: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 30px 25px;
+            text-decoration: none;
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
         }
-        .btn-hover {
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        .module-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
+            opacity: 0;
+            transition: opacity 0.3s;
         }
-        .btn-hover:active {
-            transform: scale(0.95);
+        .module-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4), 0 0 20px rgba(0, 210, 255, 0.15);
+            border-color: rgba(0, 210, 255, 0.3);
+        }
+        .module-card:hover::before {
+            opacity: 1;
+        }
+        .module-id {
+            font-family: 'Consolas', monospace;
+            font-size: 0.9rem;
+            color: var(--accent-blue);
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+        .module-title {
+            font-size: 1.4rem;
+            font-weight: bold;
+            margin: 0 0 15px 0;
+            line-height: 1.4;
+        }
+        .module-desc {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+            margin: 0;
+            flex-grow: 1;
+        }
+        .module-enter {
+            margin-top: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: var(--accent-purple);
+            display: flex;
+            align-items: center;
+            transition: color 0.3s;
+        }
+        .module-card:hover .module-enter {
+            color: var(--accent-blue);
+        }
+        .module-enter::after {
+            content: '→';
+            margin-left: 8px;
+            transition: transform 0.3s;
+        }
+        .module-card:hover .module-enter::after {
+            transform: translateX(5px);
+        }
+
+        @media (max-width: 768px) {
+            .hub-header h1 { font-size: 2.2rem; }
+            .grid-container { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
-
-<div id="game-container" class="w-full max-w-2xl px-4">
-    <!-- 初始界面 -->
-    <div id="start-screen" class="glass-card rounded-3xl p-8 text-center">
-        <div class="mb-6 inline-block p-4 bg-blue-500/20 rounded-2xl">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-            </svg>
-        </div>
-        <h1 class="text-3xl font-bold mb-4">财务大数据·真伪鉴别师</h1>
-        <p class="text-slate-400 mb-8 leading-relaxed">
-            在这个数字化转型的时代，财务数据不再仅仅是资产负债表上的数字。
-            作为鉴别师，你需要快速判断以下关于财务大数据的描述是否科学。
-        </p>
-        <button onclick="startGame()" class="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold text-lg btn-hover shadow-lg shadow-blue-900/20">
-            开始挑战
-        </button>
+    <div class="hub-header">
+        <h1>财务大数据分析</h1>
+        <p>中央实训系统与数据核阅枢纽</p>
     </div>
 
-    <!-- 游戏界面 -->
-    <div id="quiz-screen" class="glass-card rounded-3xl p-8 hidden">
-        <div class="flex justify-between items-center mb-6">
-            <span id="question-count" class="text-sm font-medium text-slate-400">问题 1 / 10</span>
-            <span id="current-score" class="text-sm font-bold text-blue-400">得分: 0</span>
-        </div>
-        <div class="w-full bg-slate-700 h-2 rounded-full mb-8 overflow-hidden">
-            <div id="progress" class="progress-bar h-full bg-blue-500" style="width: 0%"></div>
-        </div>
+    <div class="grid-container">
 
-        <div class="min-h-[160px] flex items-center justify-center text-center mb-10">
-            <h2 id="question-text" class="text-xl md:text-2xl font-semibold leading-snug">
-                加载中...
-            </h2>
-        </div>
+        <a href="business-intelligence-cognition.html" class="module-card">
+            <div class="module-id">PROJECT 01</div>
+            <h3 class="module-title">商务智能认知</h3>
+            <p class="module-desc">探索数字经济底层资源置换逻辑，理解数据驱动与业财融合的核心决策机制。</p>
+            <div class="module-enter">载入赛博终端</div>
+        </a>
 
-        <div class="grid grid-cols-2 gap-4">
-            <button onclick="checkAnswer(true)" class="py-5 bg-emerald-600/20 hover:bg-emerald-600 border border-emerald-500/50 text-emerald-400 hover:text-white rounded-2xl font-bold text-xl btn-hover">
-                正确 (T)
-            </button>
-            <button onclick="checkAnswer(false)" class="py-5 bg-rose-600/20 hover:bg-rose-600 border border-rose-500/50 text-rose-400 hover:text-white rounded-2xl font-bold text-xl btn-hover">
-                错误 (F)
-            </button>
-        </div>
+        <a href="financial-data-analysis-cognition.html" class="module-card">
+            <div class="module-id">PROJECT 02</div>
+            <h3 class="module-title">财务大数据认知</h3>
+            <p class="module-desc">掌握财务报表发展历程与核心恒等式，构建对企业经营业绩的静态与动态视角。</p>
+            <div class="module-enter">提取加密档案</div>
+        </a>
+
+        <a href="python-data-analysis-terminal.html" class="module-card">
+            <div class="module-id">PROJECT 03</div>
+            <h3 class="module-title">Python技术准备</h3>
+            <p class="module-desc">编译底层语法，掌握 Pandas 数据清洗、格式化输出与 Jupyter 交互环境指令。</p>
+            <div class="module-enter">连接开发引擎</div>
+        </a>
+
+        <a href="balance-sheet-analysis-holo.html" class="module-card">
+            <div class="module-id">PROJECT 04</div>
+            <h3 class="module-title">资产负债表分析</h3>
+            <p class="module-desc">洞察稳健资本结构，运用 Python 行列转置与缺省值清洗技术重构底层资产数据。</p>
+            <div class="module-enter">激活全息面板</div>
+        </a>
+
+        <a href="income-statement-reactor.html" class="module-card">
+            <div class="module-id">PROJECT 05</div>
+            <h3 class="module-title">利润表分析</h3>
+            <p class="module-desc">洞察企业盈利质量与成本控制机制，运用共同比分析与 Python 匹配技术剥离非经常性损益。</p>
+            <div class="module-enter">启动提纯矩阵</div>
+        </a>
+
+        <a href="cash-flow-detective.html" class="module-card">
+            <div class="module-id">PROJECT 06</div>
+            <h3 class="module-title">现金流量表分析</h3>
+            <p class="module-desc">排查财务造假污染，利用数据纵向拼接与趋势计算技术追踪企业资金运转生命线。</p>
+            <div class="module-enter">调阅侦探卷宗</div>
+        </a>
+
+        <a href="owners-equity-vault.html" class="module-card">
+            <div class="module-id">PROJECT 07</div>
+            <h3 class="module-title">所有者权益分析</h3>
+            <p class="module-desc">解密资本积累与盈余公积留存机制，运用高级透视表与分组聚合重塑财富矩阵。</p>
+            <div class="module-enter">破解财富金库</div>
+        </a>
+
+        <a href="financial-health-monitor.html" class="module-card">
+            <div class="module-id">PROJECT 08</div>
+            <h3 class="module-title">财务综合评价</h3>
+            <p class="module-desc">解码杜邦分析核心靶点，掌握 pyecharts 数据图表层叠技术，诊断企业生命体征。</p>
+            <div class="module-enter">启动监护仪器</div>
+        </a>
+
+        <a href="comprehensive-report-starship.html" class="module-card">
+            <div class="module-id">PROJECT 09</div>
+            <h3 class="module-title">综合分析报告</h3>
+            <p class="module-desc">结合宏观环境雷达与行业集中度测算，撰写具备商业决策价值的全局性分析终端。</p>
+            <div class="module-enter">登入星舰指挥舱</div>
+        </a>
+
     </div>
-
-    <!-- 反馈模态框 -->
-    <div id="feedback-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center z-50 hidden">
-        <div class="glass-card rounded-3xl p-8 max-w-sm w-full mx-4 text-center">
-            <div id="feedback-icon" class="mb-4 text-5xl"></div>
-            <h3 id="feedback-title" class="text-2xl font-bold mb-2"></h3>
-            <p id="feedback-desc" class="text-slate-400 mb-6 text-sm leading-relaxed"></p>
-            <button onclick="nextQuestion()" class="w-full py-3 bg-slate-700 hover:bg-slate-600 text-white rounded-xl font-medium btn-hover">
-                继续
-            </button>
-        </div>
-    </div>
-
-    <!-- 结算界面 -->
-    <div id="result-screen" class="glass-card rounded-3xl p-10 text-center hidden">
-        <h2 class="text-4xl font-bold mb-2">挑战结束</h2>
-        <p class="text-slate-400 mb-8">你的财务大数据洞察力评分为：</p>
-        <div class="text-7xl font-black text-blue-400 mb-10" id="final-score">0</div>
-        <div id="rank-badge" class="inline-block px-6 py-2 bg-blue-500/20 text-blue-400 rounded-full font-bold mb-8 italic text-lg">
-            初级会计员
-        </div>
-        <button onclick="location.reload()" class="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold btn-hover">
-            重新挑战
-        </button>
-    </div>
-</div>
-
-<script>
-    // 题目数据库
-    const quizData = [
-        {
-            text: "财务大数据分析仅处理结构化数据（如ERP中的数字），不涉及图片或文本。",
-            isCorrect: false,
-            desc: "现代财务大数据不仅处理结构化数据，还利用OCR等技术处理发票图片、合同文本等非结构化数据。"
-        },
-        {
-            text: "在财务分析中，数据的“实时性（Velocity）”意味着决策可以从事后分析转变为事中监控。",
-            isCorrect: true,
-            desc: "通过实时数据流，财务人员可以即时发现预算超支或异常交易，而不是等到月底结账。"
-        },
-        {
-            text: "财务大数据中的 ETL 流程是指：提取（Extract）、转换（Transform）、加载（Load）。",
-            isCorrect: true,
-            desc: "这是数据处理的核心流程，负责将分散的财务原始数据转化为可分析的统一格式。"
-        },
-        {
-            text: "只要拥有海量数据，财务大数据模型就能自动百分之百预测企业的未来股价波动。",
-            isCorrect: false,
-            desc: "数据分析是基于概率的。虽然大数据能提高预测精度，但市场存在无法量化的随机噪声和黑天鹅事件。"
-        },
-        {
-            text: "数据清洗（Data Cleaning）占用了财务数据科学家约 60%-80% 的工作时间。",
-            isCorrect: true,
-            desc: "原始财务数据往往存在缺失、重复或格式不一致，必须经过深度清洗才能确保分析结果的真实性。"
-        },
-        {
-            text: "关联规则挖掘（Association Rules）常用于检测财务舞弊，例如发现虚假报销和违规关联交易。",
-            isCorrect: true,
-            desc: "通过寻找数据间的潜在关联，可以识别出肉眼难以发现的异常资金往来模式。"
-        },
-        {
-            text: "财务云（Financial Cloud）只是一个存储空间，与大数据计算能力无关。",
-            isCorrect: false,
-            desc: "财务云不仅提供存储，更提供弹性计算资源，是进行大规模并行财务数据计算的硬件基础。"
-        },
-        {
-            text: "数据可视化图表的主要目的是为了让报告好看，对决策效率没有实质影响。",
-            isCorrect: false,
-            desc: "可视化通过人类视觉系统快速识别模式和趋势，能显著降低认知成本，加速复杂财务决策。"
-        },
-        {
-            text: "非财务数据（如天气、港口流量）现在也被纳入大型企业的财务预警模型中。",
-            isCorrect: true,
-            desc: "外部环境数据能影响供应链成本和销售预测，是全维度财务分析的重要补充。"
-        },
-        {
-            text: "大数据分析可以完全取代财务审计师，因为机器不会疲倦且计算准确。",
-            isCorrect: false,
-            desc: "虽然机器能辅助筛查，但职业判断、合规理解和道德风险评估仍需要人类专业人士参与。"
-        }
-    ];
-
-    let currentIdx = 0;
-    let score = 0;
-
-    const startScreen = document.getElementById('start-screen');
-    const quizScreen = document.getElementById('quiz-screen');
-    const feedbackModal = document.getElementById('feedback-modal');
-    const resultScreen = document.getElementById('result-screen');
-    const questionText = document.getElementById('question-text');
-    const questionCount = document.getElementById('question-count');
-    const currentScoreDisplay = document.getElementById('current-score');
-    const progressBar = document.getElementById('progress');
-
-    function startGame() {
-        startScreen.classList.add('hidden');
-        quizScreen.classList.remove('hidden');
-        renderQuestion();
-    }
-
-    function renderQuestion() {
-        const q = quizData[currentIdx];
-        questionText.innerText = q.text;
-        questionCount.innerText = `问题 ${currentIdx + 1} / ${quizData.length}`;
-        progressBar.style.width = `${(currentIdx / quizData.length) * 100}%`;
-    }
-
-    function checkAnswer(userChoice) {
-        const q = quizData[currentIdx];
-        const isRight = userChoice === q.isCorrect;
-
-        if (isRight) {
-            score += 10;
-            showFeedback(true, "回答正确！", q.desc);
-        } else {
-            showFeedback(false, "回答错误", q.desc);
-        }
-        currentScoreDisplay.innerText = `得分: ${score}`;
-    }
-
-    function showFeedback(isRight, title, desc) {
-        document.getElementById('feedback-icon').innerText = isRight ? "✅" : "❌";
-        document.getElementById('feedback-title').innerText = title;
-        document.getElementById('feedback-title').className = isRight ? "text-2xl font-bold mb-2 text-emerald-400" : "text-2xl font-bold mb-2 text-rose-400";
-        document.getElementById('feedback-desc').innerText = desc;
-        feedbackModal.classList.remove('hidden');
-    }
-
-    function nextQuestion() {
-        feedbackModal.classList.add('hidden');
-        currentIdx++;
-        if (currentIdx < quizData.length) {
-            renderQuestion();
-        } else {
-            showResults();
-        }
-    }
-
-    function showResults() {
-        quizScreen.classList.add('hidden');
-        resultScreen.classList.remove('hidden');
-        document.getElementById('final-score').innerText = score;
-
-        let rank = "数据实习生";
-        if (score >= 90) rank = "财务首席科学家";
-        else if (score >= 70) rank = "高级数据分析师";
-        else if (score >= 40) rank = "资深财务专员";
-
-        document.getElementById('rank-badge').innerText = rank;
-    }
-</script>
 
 </body>
 </html>

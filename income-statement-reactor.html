@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>利润表分析 - 能量提纯矩阵</title>
+    <style>
+        .back-home-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-size: 1rem;
+            font-weight: bold;
+            text-decoration: none;
+            z-index: 9999;
+            transition: all 0.3s ease;
+            font-family: sans-serif;
+        }
+
+        .back-home-btn:hover {
+            background: rgba(0, 0, 0, 0.9);
+            border-color: rgba(255, 255, 255, 0.6);
+            transform: translateX(-5px);
+        }
+        :root {
+            --metal-dark: #1a1a1d;
+            --metal-light: #4e4e50;
+            --energy-amber: #ff8a00;
+            --energy-dim: #9e5a00;
+            --error-red: #e94560;
+            --text-glow: #e0e0e0;
+        }
+        body {
+            font-family: 'Consolas', 'Courier New', Courier, monospace;
+            background-color: var(--metal-dark);
+            background-image:
+                repeating-linear-gradient(45deg, rgba(78, 78, 80, 0.05) 0px, rgba(78, 78, 80, 0.05) 2px, transparent 2px, transparent 10px),
+                repeating-linear-gradient(-45deg, rgba(78, 78, 80, 0.05) 0px, rgba(78, 78, 80, 0.05) 2px, transparent 2px, transparent 10px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            color: var(--text-glow);
+            overflow: hidden;
+        }
+        .reactor-header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 3px solid var(--energy-dim);
+            padding-bottom: 10px;
+            width: 90%;
+            max-width: 700px;
+            box-shadow: 0 10px 10px -10px rgba(255, 138, 0, 0.3);
+        }
+        .reactor-header h2 {
+            font-size: 2.2rem;
+            color: var(--energy-amber);
+            margin: 0;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            text-shadow: 0 0 15px rgba(255, 138, 0, 0.6);
+        }
+        .pressure-gauge {
+            font-size: 1.1rem;
+            color: var(--metal-light);
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        .reactor-core {
+            width: 90%;
+            max-width: 700px;
+            background: linear-gradient(145deg, #252528, #1a1a1d);
+            border: 2px solid var(--metal-light);
+            border-radius: 8px;
+            padding: 40px;
+            box-sizing: border-box;
+            box-shadow:
+                inset 0 0 30px rgba(0,0,0,0.8),
+                0 15px 35px rgba(0,0,0,0.6);
+            position: relative;
+            transition: all 0.4s ease;
+        }
+        .reactor-core.purified {
+            border-color: var(--energy-amber);
+            box-shadow:
+                inset 0 0 40px rgba(255, 138, 0, 0.2),
+                0 0 30px rgba(255, 138, 0, 0.4);
+        }
+        .reactor-core.error {
+            border-color: var(--error-red);
+            box-shadow: inset 0 0 40px rgba(233, 69, 96, 0.2);
+            animation: shake 0.4s;
+        }
+        .core-tag {
+            display: inline-block;
+            background: rgba(255, 138, 0, 0.1);
+            border: 1px solid var(--energy-dim);
+            color: var(--energy-amber);
+            padding: 5px 15px;
+            font-size: 0.9rem;
+            margin-bottom: 25px;
+            border-radius: 2px;
+            letter-spacing: 1px;
+        }
+        .question-text {
+            font-size: 1.3rem;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .mech-btn {
+            background: #1a1a1d;
+            border: 1px solid var(--metal-light);
+            color: var(--text-glow);
+            padding: 15px 20px;
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 1.1rem;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+        .mech-btn:hover:not(:disabled) {
+            background: rgba(255, 138, 0, 0.1);
+            border-color: var(--energy-amber);
+            padding-left: 25px;
+        }
+        .mech-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+        .mech-btn.correct {
+            background: rgba(255, 138, 0, 0.2);
+            border-color: var(--energy-amber);
+            color: var(--energy-amber);
+            font-weight: bold;
+            box-shadow: inset 0 0 15px rgba(255, 138, 0, 0.4);
+        }
+        .mech-btn.wrong {
+            background: rgba(233, 69, 96, 0.15);
+            border-color: var(--error-red);
+            color: var(--error-red);
+            text-decoration: line-through;
+        }
+        .input-valve {
+            display: flex;
+            gap: 15px;
+        }
+        .mech-input {
+            flex-grow: 1;
+            background: #121214;
+            border: 2px solid var(--metal-light);
+            color: var(--energy-amber);
+            padding: 15px;
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 1.3rem;
+            text-align: center;
+            outline: none;
+            letter-spacing: 2px;
+        }
+        .mech-input:focus {
+            border-color: var(--energy-amber);
+            box-shadow: 0 0 15px rgba(255, 138, 0, 0.3);
+        }
+        .valve-btn {
+            background: var(--metal-light);
+            color: #fff;
+            border: none;
+            padding: 0 25px;
+            border-radius: 4px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .valve-btn:hover:not(:disabled) {
+            background: var(--energy-amber);
+            color: #000;
+        }
+        .output-screen {
+            margin-top: 25px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            border-left: 4px solid var(--energy-amber);
+            display: none;
+        }
+        .output-screen.show {
+            display: block;
+            animation: slideIn 0.4s ease-out;
+        }
+        .output-text {
+            line-height: 1.6;
+            font-size: 1.1rem;
+            color: #d3d3d3;
+        }
+        .next-btn {
+            margin-top: 20px;
+            background: transparent;
+            border: 1px solid var(--energy-dim);
+            color: var(--energy-amber);
+            padding: 10px 20px;
+            border-radius: 2px;
+            cursor: pointer;
+            font-size: 1rem;
+            float: right;
+            transition: all 0.2s;
+        }
+        .next-btn:hover {
+            background: var(--energy-amber);
+            color: #000;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            50% { transform: translateX(8px); }
+            75% { transform: translateX(-8px); }
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+<a href="index.html" class="back-home-btn">← 返回控制中心</a>
+    <div class="reactor-header">
+        <h2>利润提纯反应堆</h2>
+        <div class="pressure-gauge" id="progress">当前提纯级数：1 / 8</div>
+    </div>
+
+    <div class="reactor-core" id="core">
+        <div class="core-tag" id="tag">正在加载原料...</div>
+        <div class="question-text" id="q-text"></div>
+
+        <div class="controls" id="controls">
+            </div>
+
+        <div class="output-screen" id="output">
+            <div class="output-text" id="a-text"></div>
+            <button class="next-btn" id="next-btn" onclick="nextStage()">注入下一批原料</button>
+        </div>
+    </div>
+
+    <script>
+        const stages = [
+            {
+                type: 'tf',
+                tag: '报表属性诊断',
+                q: "逻辑判断：利润表是一张反映企业在某一个特定时点（如年末最后一天）财务状况的静态报表。",
+                options: ["符合逻辑 (True)", "存在谬误 (False)"],
+                correct: 1,
+                a: "排异成功：存在谬误。利润表是反映企业在【特定会计期间】（如一整个月或一整年）内经营成果的动态报表，它记录的是一个积累的过程，而非瞬间的快照。"
+            },
+            {
+                type: 'fill',
+                tag: '底层核算机制',
+                q: "阀门调节：利润表的底层编制基础是______发生制。这意味着收入和费用的确认以实际发生为准，而不考虑资金的实际收付轨迹。",
+                placeholder: "输入两个汉字",
+                correct: "权责",
+                a: "提纯完成：权责。权责发生制确保了企业在销售商品（即便还没收到钱）时就能确认收入，从而更精准地匹配当期的投入与产出。"
+            },
+            {
+                type: 'mcq',
+                tag: '多步式结构解析',
+                q: "参数选择：在标准的“多步式”利润表结构中，从营业收入出发，扣除营业成本及各项期间费用后，第一步计算得出的核心利润指标是？",
+                options: ["净利润", "利润总额", "营业利润", "综合收益"],
+                correct: 2,
+                a: "提纯完成：营业利润。这是企业依靠日常主营业务赚取的核心利润。随后再加上营业外收支得出“利润总额”，最后扣除所得税才得出终极的“净利润”。"
+            },
+            {
+                type: 'mcq',
+                tag: '共同比换算',
+                q: "参数选择：在编制“共同比利润表”进行总括分析时，为了清晰展现各项成本费用的结构占比，通常会将哪个科目设定为基数（即100%）？",
+                options: ["营业收入", "营业成本", "净利润", "利润总额"],
+                correct: 0,
+                a: "提纯完成：营业收入。将营业收入设为100%，可以极其直观地看出企业每赚取100元钱，其中有多少钱被原材料成本吃掉，又有多少钱变成了销售费用或净利润。"
+            },
+            {
+                type: 'fill',
+                tag: '损益质量分离',
+                q: "阀门调节：企业在日常主营业务之外，因为变卖废旧设备或遭遇自然灾害而产生的偶发性收支，在财务分析中必须被剥离出来，它们统称为______性损益。",
+                placeholder: "输入两个汉字",
+                correct: "非经常",
+                a: "提纯完成：非经常。剥离非经常性损益是分析企业真实盈利能力的关键步骤。靠卖厂房赚来的利润不可持续，只有扣除这些偶然因素后的“经常性损益”，才是企业真正的造血能力。"
+            },
+            {
+                type: 'tf',
+                tag: '期间费用扣除',
+                q: "逻辑判断：管理费用、销售费用和财务费用这三项被称为“期间费用”，它们在发生当期会直接从营业收入中扣除，从而不可逆地减少最终的净利润。",
+                options: ["符合逻辑 (True)", "存在谬误 (False)"],
+                correct: 0,
+                a: "排异成功：符合逻辑。与能够转化为存货资产的生产成本不同，期间费用不会创造任何实体资产，它们是维持企业机器运转的纯粹耗散，必须在当期全部核销。"
+            },
+            {
+                type: 'fill',
+                tag: 'Python 字符串匹配',
+                q: "引擎指令：在利用 Pandas 进行数据清洗时，若要精准筛选出报表日期列中包含“12-31”字符串的年度数据，应调用的核心匹配函数是 ______ ()。",
+                placeholder: "输入纯英文函数名",
+                correct: "contains",
+                a: "提纯完成：contains。调用 `df['报表日期'].str.contains('12-31')` 能够利用底层的正则表达式引擎，快速从海量的日期数据中过滤出所有的年末记录。"
+            },
+            {
+                type: 'mcq',
+                tag: 'Python 算力建模',
+                q: "参数选择：在 Python 环境中编写测算“毛利率”的向量化公式时，符合商业底层逻辑的正确运算序列是？",
+                options: ["净利润 / 营业总收入", "(营业总收入 - 营业总成本) / 营业总收入", "营业利润 / 营业总成本", "(营业总收入 - 期间费用) / 营业总收入"],
+                correct: 1,
+                a: "提纯完成：(营业总收入 - 营业总成本) / 营业总收入。毛利就是剔除了直接生产成本（如原材料、生产人工）后的初步利润，它是抵御后续各项期间费用的第一道防线。"
+            }
+        ];
+
+        let currentStage = 0;
+        const core = document.getElementById('core');
+        const tag = document.getElementById('tag');
+        const qText = document.getElementById('q-text');
+        const controls = document.getElementById('controls');
+        const output = document.getElementById('output');
+        const aText = document.getElementById('a-text');
+        const progress = document.getElementById('progress');
+        const nextBtn = document.getElementById('next-btn');
+
+        function loadStage() {
+            output.classList.remove('show');
+            core.className = 'reactor-core';
+
+            const current = stages[currentStage];
+            progress.innerText = `当前提纯级数：${currentStage + 1} / ${stages.length}`;
+            tag.innerText = `[ ${current.tag} ]`;
+            qText.innerText = current.q;
+
+            controls.innerHTML = '';
+
+            if (current.type === 'mcq' || current.type === 'tf') {
+                current.options.forEach((opt, idx) => {
+                    const btn = document.createElement('button');
+                    btn.className = 'mech-btn';
+                    btn.innerText = opt;
+                    btn.onclick = () => verify(idx, btn);
+                    controls.appendChild(btn);
+                });
+            } else if (current.type === 'fill') {
+                controls.innerHTML = `
+                    <div class="input-valve">
+                        <input type="text" id="valve-input" class="mech-input" placeholder="${current.placeholder}" autocomplete="off">
+                        <button class="valve-btn" onclick="verifyValve()">旋开阀门</button>
+                    </div>
+                `;
+            }
+        }
+
+        function triggerFeedback(isCorrect) {
+            const current = stages[currentStage];
+            aText.innerText = current.a;
+
+            if (isCorrect) {
+                core.classList.add('purified');
+            } else {
+                core.classList.add('error');
+            }
+
+            if (currentStage === stages.length - 1) {
+                nextBtn.innerText = "切断反应堆电源";
+            }
+            output.classList.add('show');
+        }
+
+        function verify(selectedIndex, btnEl) {
+            const current = stages[currentStage];
+            const allBtns = controls.querySelectorAll('.mech-btn');
+            allBtns.forEach(b => b.disabled = true);
+
+            const isCorrect = (selectedIndex === current.correct);
+            if (isCorrect) {
+                btnEl.classList.add('correct');
+            } else {
+                btnEl.classList.add('wrong');
+                allBtns[current.correct].classList.add('correct');
+            }
+            triggerFeedback(isCorrect);
+        }
+
+        function verifyValve() {
+            const current = stages[currentStage];
+            const inputEl = document.getElementById('valve-input');
+            const valveBtn = controls.querySelector('.valve-btn');
+
+            inputEl.disabled = true;
+            valveBtn.disabled = true;
+
+            const val = inputEl.value.trim().toLowerCase();
+            const isCorrect = (val === current.correct.toLowerCase());
+
+            if (isCorrect) {
+                inputEl.style.borderColor = "var(--energy-amber)";
+                inputEl.style.color = "var(--energy-amber)";
+            } else {
+                inputEl.style.borderColor = "var(--error-red)";
+                inputEl.style.color = "var(--error-red)";
+                inputEl.value = `ERR: 纯度不达标，应为 [ ${current.correct} ]`;
+            }
+            triggerFeedback(isCorrect);
+        }
+
+        function nextStage() {
+            if (currentStage < stages.length - 1) {
+                currentStage++;
+                loadStage();
+            } else {
+                controls.innerHTML = '';
+                tag.innerText = "PROCESS_COMPLETE";
+                qText.innerHTML = `<span style="color:var(--energy-amber); font-weight:bold;">所有冗余成本已剔除，净利润晶体提取完毕。</span><br><br>你的盈利分析能力与数据清洗指令已完全符合系统标准。`;
+                output.style.display = 'none';
+                core.className = 'reactor-core purified';
+                progress.innerText = "系统冷却中...";
+            }
+        }
+
+        loadStage();
+    </script>
+</body>
+</html>

@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>所有者权益分析 - 财富金库解密</title>
+    <style>
+        .back-home-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-size: 1rem;
+            font-weight: bold;
+            text-decoration: none;
+            z-index: 9999;
+            transition: all 0.3s ease;
+            font-family: sans-serif;
+        }
+
+        .back-home-btn:hover {
+            background: rgba(0, 0, 0, 0.9);
+            border-color: rgba(255, 255, 255, 0.6);
+            transform: translateX(-5px);
+        }
+        :root {
+            --vault-dark: #111417;
+            --vault-metal: #2c353d;
+            --vault-gold: #d4af37;
+            --vault-gold-dim: #8a7322;
+            --vault-green: #2e8b57;
+            --vault-red: #8b0000;
+            --text-light: #e8e9ea;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--vault-dark);
+            background-image:
+                linear-gradient(45deg, #111417 25%, transparent 25%, transparent 75%, #111417 75%, #111417),
+                linear-gradient(45deg, #111417 25%, transparent 25%, transparent 75%, #111417 75%, #111417);
+            background-size: 20px 20px;
+            background-position: 0 0, 10px 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            color: var(--text-light);
+        }
+        .vault-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .vault-header h2 {
+            font-size: 2.2rem;
+            color: var(--vault-gold);
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            margin: 0;
+            text-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+        }
+        .progress-display {
+            font-family: 'Consolas', monospace;
+            color: var(--vault-gold-dim);
+            margin-top: 10px;
+            font-size: 1.1rem;
+            letter-spacing: 2px;
+        }
+        .vault-door {
+            width: 90%;
+            max-width: 750px;
+            background: linear-gradient(135deg, var(--vault-metal), #1a2025);
+            border: 4px solid var(--vault-gold-dim);
+            border-radius: 15px;
+            padding: 40px;
+            box-sizing: border-box;
+            box-shadow:
+                0 20px 50px rgba(0,0,0,0.8),
+                inset 0 0 20px rgba(0,0,0,0.5),
+                inset 0 0 5px var(--vault-gold);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s ease;
+        }
+        .gear-bg {
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            width: 200px;
+            height: 200px;
+            border: 15px dashed rgba(212, 175, 55, 0.1);
+            border-radius: 50%;
+            pointer-events: none;
+            transition: transform 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .vault-door.unlocked .gear-bg {
+            transform: rotate(90deg);
+        }
+        .question-panel {
+            font-size: 1.3rem;
+            line-height: 1.6;
+            margin-bottom: 35px;
+            color: #ffffff;
+            font-weight: 500;
+            position: relative;
+            z-index: 2;
+        }
+        .interaction-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            position: relative;
+            z-index: 2;
+        }
+        .vault-btn {
+            background: rgba(17, 20, 23, 0.8);
+            border: 1px solid var(--vault-gold-dim);
+            color: var(--text-light);
+            padding: 18px 25px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.3s;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+        }
+        .vault-btn:hover:not(:disabled) {
+            background: var(--vault-metal);
+            border-color: var(--vault-gold);
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
+            transform: translateY(-2px);
+        }
+        .vault-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        .vault-btn.correct {
+            background: rgba(46, 139, 87, 0.2);
+            border-color: var(--vault-green);
+            color: #4ade80;
+            box-shadow: 0 0 20px rgba(46, 139, 87, 0.5);
+        }
+        .vault-btn.wrong {
+            background: rgba(139, 0, 0, 0.2);
+            border-color: var(--vault-red);
+            color: #f87171;
+            box-shadow: 0 0 20px rgba(139, 0, 0, 0.5);
+            animation: lockShake 0.4s;
+        }
+        .vault-input-group {
+            display: flex;
+            gap: 15px;
+        }
+        .vault-input {
+            flex-grow: 1;
+            background: #111417;
+            border: 2px solid var(--vault-gold-dim);
+            color: var(--vault-gold);
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Consolas', monospace;
+            font-size: 1.3rem;
+            text-align: center;
+            outline: none;
+            letter-spacing: 2px;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.8);
+        }
+        .vault-input:focus {
+            border-color: var(--vault-gold);
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.4), inset 0 0 15px rgba(0,0,0,0.8);
+        }
+        .action-btn {
+            background: linear-gradient(to bottom, var(--vault-gold), var(--vault-gold-dim));
+            color: #111;
+            border: none;
+            padding: 0 30px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            transition: all 0.2s;
+        }
+        .action-btn:hover:not(:disabled) {
+            filter: brightness(1.2);
+            transform: translateY(-2px);
+        }
+        .feedback-screen {
+            margin-top: 25px;
+            padding: 25px;
+            background: rgba(17, 20, 23, 0.9);
+            border: 1px solid var(--vault-green);
+            border-radius: 8px;
+            display: none;
+            position: relative;
+            z-index: 2;
+        }
+        .feedback-screen.show {
+            display: block;
+            animation: screenGlow 1s ease-out;
+        }
+        .feedback-title {
+            color: var(--vault-green);
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        .feedback-text {
+            color: var(--text-light);
+            line-height: 1.6;
+            font-size: 1.1rem;
+        }
+        .next-stage-btn {
+            margin-top: 20px;
+            background: transparent;
+            border: 1px solid var(--vault-gold);
+            color: var(--vault-gold);
+            padding: 10px 25px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            float: right;
+            transition: all 0.2s;
+        }
+        .next-stage-btn:hover {
+            background: var(--vault-gold);
+            color: #111;
+        }
+        @keyframes lockShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            50% { transform: translateX(10px); }
+            75% { transform: translateX(-10px); }
+        }
+        @keyframes screenGlow {
+            0% { box-shadow: 0 0 0 rgba(46, 139, 87, 0); }
+            50% { box-shadow: 0 0 30px rgba(46, 139, 87, 0.4); }
+            100% { box-shadow: 0 0 10px rgba(46, 139, 87, 0.2); }
+        }
+    </style>
+</head>
+<body>
+<a href="index.html" class="back-home-btn">← 返回控制中心</a>
+    <div class="vault-header">
+        <h2>财富金库：净资产解密</h2>
+        <div class="progress-display" id="progress-indicator">SECURITY LEVEL: 1 / 10</div>
+    </div>
+
+    <div class="vault-door" id="vault-door">
+        <div class="gear-bg"></div>
+
+        <div class="question-panel" id="question-text">
+            系统正在加载加密卷宗...
+        </div>
+
+        <div class="interaction-grid" id="interaction-zone">
+            </div>
+
+        <div class="feedback-screen" id="feedback-screen">
+            <div class="feedback-title" id="feedback-title">ACCESS GRANTED // 权限验证通过</div>
+            <div class="feedback-text" id="feedback-text"></div>
+            <button class="next-stage-btn" onclick="nextVault()">破解下一道安全门</button>
+        </div>
+    </div>
+
+    <script>
+        const vaultData = [
+            {
+                type: 'tf',
+                q: "逻辑核查：所有者权益变动表是基于收付实现制编制的，它主要反映了企业账面上到底有多少能够随时动用的真金白银。",
+                options: ["逻辑正确 (True)", "逻辑谬误 (False)"],
+                correct: 1, // False
+                a: "核心更正：该报表是基于【权责发生制】编制的。它揭示的是净资产的变动逻辑和资本的保值增值情况，并不直接等同于口袋里的现金流量。"
+            },
+            {
+                type: 'mcq',
+                q: "资金溯源：在新股东入股时，如果约定的投入资金超出了其在企业注册资本中所占的本金份额（即产生了溢价），这笔多出来的资金应该被锁入哪个会计科目？",
+                options: ["实收资本 (股本)", "资本公积", "盈余公积", "其他综合收益"],
+                correct: 1,
+                a: "资产归类：资本公积。实收资本严格对应企业的注册资本份额，而超出本金份额的投资溢价，构成了企业的资本公积，属于全体股东共享的资本储备。"
+            },
+            {
+                type: 'mcq',
+                q: "利润流向：企业在年末决定将净利润的一部分按规定比例截留下来，作为未来弥补亏损或应对风险的“备用金”。这笔资金被存入了哪个科目？",
+                options: ["资本公积", "盈余公积", "未分配利润", "其他综合收益"],
+                correct: 1,
+                a: "资产归类：盈余公积。这是企业强制积累的风险准备金，它的计提意味着这部分利润暂时不能用于给股东分红，从而增强了企业抵御未知风险的底层实力。"
+            },
+            {
+                type: 'mcq',
+                q: "结构评估：企业将积攒的“资本公积”转化为“实收资本”来扩大股本。执行这个操作后，企业的“所有者权益总额”会发生怎样的变化？",
+                options: ["总额同比例增加", "总额大幅度减少", "总额保持完全不变", "取决于当年的净利润"],
+                correct: 2,
+                a: "资产归类：总额保持完全不变。这属于所有者权益的内部结转，就像把钱从左边口袋（资本公积）放进了右边口袋（实收资本），净资产的物理总量并未受到任何影响。"
+            },
+            {
+                type: 'tf',
+                q: "企业诊断：像贵州茅台这类极度成熟的企业，其所有者权益中“盈余公积”和“未分配利润”占比极高（达98%以上），这说明该企业高度依赖外部投资者的持续输血。",
+                options: ["逻辑正确 (True)", "逻辑谬误 (False)"],
+                correct: 1, // False
+                a: "核心更正：恰恰相反。留存收益（盈余公积+未分配利润）占比极高，说明企业的权益核心来源是极其强悍的【内部盈利积累】，企业实现了高度的经营自主，彻底摆脱了对外部融资的依赖。"
+            },
+            {
+                type: 'fill',
+                q: "指标解码：要评估企业今年的资本有没有缩水，需要计算“资本保值增值率”。公式是用扣除客观因素后的年末所有者权益除以 ______ 所有者权益。",
+                placeholder: "输入两个中文字符",
+                correct: "年初",
+                a: "数据解码：年初。将年末数据与年初数据进行比对，若比值大于100%，则宣告资本成功实现了增值，经营状况处于良性运转周期。"
+            },
+            {
+                type: 'fill',
+                q: "代码注入：在Pandas数据清洗环节，若需要根据“年份”这一列对庞大的财务数据进行分类切片并求取最大值，你必须调用的核心分组函数是 ______()。",
+                placeholder: "输入纯英文函数名",
+                correct: "groupby",
+                a: "系统指令：groupby。这是 Pandas 处理结构化数据时最强大的分组引擎，底层通过分割-应用-组合（Split-Apply-Combine）逻辑瞬间完成数据的维度降级。"
+            },
+            {
+                type: 'fill',
+                q: "代码注入：在使用 agg() 函数对提取的数据组进行批量聚合运算时，如果系统指令要求计算该组数据的平均值，传入的字符串参数应当是 '______'。",
+                placeholder: "输入纯英文参数名",
+                correct: "mean",
+                a: "系统指令：mean。在 agg() 字典映射中，'mean' 会触发底层的算术平均值计算模块，而 'sum' 触发求和，'max' 则精准捕获极值。"
+            },
+            {
+                type: 'fill',
+                q: "代码注入：为了适应更高阶的财务分析模型，需要对数据结构进行彻底重塑（例如把季度从行索引翻转为列索引）。执行此操作的 Pandas 核心透视表函数是 ______()。",
+                placeholder: "输入纯英文函数名",
+                correct: "pivot",
+                a: "系统指令：pivot 或 pivot_table。数据透视表能够在多维空间中重新排布数据的轴向，将原本扁平的流水账单重构为适合对比分析的矩阵面板。"
+            },
+            {
+                type: 'tf',
+                q: "逻辑核查：如果系统计算出某上市公司的“资本积累率”为58%，这就意味着该公司在当年不仅没有亏本，反而实现了资本的迅速扩张，展现出了极其强劲的发展潜力。",
+                options: ["逻辑正确 (True)", "逻辑谬误 (False)"],
+                correct: 0, // True
+                a: "核心更正：逻辑正确。资本积累率反映的是当年资本的增长能力（本年权益增长额 ÷ 年初权益）。58% 的高比率直接证明了该企业如同滚雪球一般，在高速扩充自身的净资产规模。"
+            }
+        ];
+
+        let currentLevel = 0;
+        const vaultDoor = document.getElementById('vault-door');
+        const questionText = document.getElementById('question-text');
+        const interactionZone = document.getElementById('interaction-zone');
+        const feedbackScreen = document.getElementById('feedback-screen');
+        const feedbackText = document.getElementById('feedback-text');
+        const feedbackTitle = document.getElementById('feedback-title');
+        const progressIndicator = document.getElementById('progress-indicator');
+
+        function initVault() {
+            vaultDoor.classList.remove('unlocked');
+            feedbackScreen.classList.remove('show');
+            const data = vaultData[currentLevel];
+            progressIndicator.innerText = `SECURITY LEVEL: ${currentLevel + 1} / ${vaultData.length}`;
+            questionText.innerText = data.q;
+
+            interactionZone.innerHTML = '';
+
+            if (data.type === 'mcq' || data.type === 'tf') {
+                data.options.forEach((opt, index) => {
+                    const btn = document.createElement('button');
+                    btn.className = 'vault-btn';
+                    btn.innerText = opt;
+                    btn.onclick = () => verifyAccess(index, btn);
+                    interactionZone.appendChild(btn);
+                });
+            } else if (data.type === 'fill') {
+                const group = document.createElement('div');
+                group.className = 'vault-input-group';
+                group.innerHTML = `
+                    <input type="text" id="vault-key" class="vault-input" placeholder="${data.placeholder}" autocomplete="off">
+                    <button class="action-btn" onclick="verifyInput()">执行</button>
+                `;
+                interactionZone.appendChild(group);
+            }
+        }
+
+        function triggerUnlock(isCorrect) {
+            if (isCorrect) {
+                vaultDoor.classList.add('unlocked');
+                feedbackTitle.innerText = "ACCESS GRANTED // 权限验证通过";
+                feedbackTitle.style.color = "var(--vault-green)";
+                feedbackScreen.style.borderColor = "var(--vault-green)";
+            } else {
+                feedbackTitle.innerText = "ACCESS DENIED // 存在致命逻辑错误";
+                feedbackTitle.style.color = "var(--vault-red)";
+                feedbackScreen.style.borderColor = "var(--vault-red)";
+            }
+
+            feedbackText.innerText = vaultData[currentLevel].a;
+            feedbackScreen.classList.add('show');
+
+            if (currentLevel === vaultData.length - 1) {
+                const nextBtn = feedbackScreen.querySelector('.next-stage-btn');
+                nextBtn.innerText = "提取金库核心数据";
+            }
+        }
+
+        function verifyAccess(selectedIndex, btnEl) {
+            const data = vaultData[currentLevel];
+            const allBtns = interactionZone.querySelectorAll('.vault-btn');
+            allBtns.forEach(b => b.disabled = true);
+
+            const isCorrect = (selectedIndex === data.correct);
+            if (isCorrect) {
+                btnEl.classList.add('correct');
+            } else {
+                btnEl.classList.add('wrong');
+                allBtns[data.correct].classList.add('correct');
+            }
+            triggerUnlock(isCorrect);
+        }
+
+        function verifyInput() {
+            const data = vaultData[currentLevel];
+            const inputEl = document.getElementById('vault-key');
+            const actionBtn = interactionZone.querySelector('.action-btn');
+
+            inputEl.disabled = true;
+            actionBtn.disabled = true;
+
+            const val = inputEl.value.trim().toLowerCase();
+            const correctVal = data.correct.toLowerCase();
+            // 针对 pivot_table 或 pivot 做的兼容
+            const isCorrect = (val === correctVal || (correctVal === 'pivot' && val === 'pivot_table'));
+
+            if (isCorrect) {
+                inputEl.style.borderColor = "var(--vault-green)";
+                inputEl.style.color = "#4ade80";
+            } else {
+                inputEl.style.borderColor = "var(--vault-red)";
+                inputEl.style.color = "#f87171";
+                inputEl.value = `ERR -> REQUIRED: ${data.correct}`;
+            }
+            triggerUnlock(isCorrect);
+        }
+
+        function nextVault() {
+            if (currentLevel < vaultData.length - 1) {
+                currentLevel++;
+                initVault();
+            } else {
+                interactionZone.innerHTML = '';
+                questionText.innerHTML = `<span style="color:var(--vault-gold); font-size: 1.5rem; text-shadow: 0 0 10px rgba(212,175,55,0.5);">系统提示：所有者权益底层逻辑与 Python 聚合模块已全部解密。</span><br><br>你的商业决策能力与数据重塑技术均已达到金库掌控标准。`;
+                feedbackScreen.style.display = 'none';
+                vaultDoor.classList.add('unlocked');
+                progressIndicator.innerText = "VAULT FULLY UNLOCKED";
+            }
+        }
+
+        // 初始化
+        initVault();
+    </script>
+</body>
+</html>

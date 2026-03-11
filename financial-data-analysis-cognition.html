@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>财务大数据分析认知 - 核心档案解锁</title>
+    <style>
+        .back-home-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-size: 1rem;
+            font-weight: bold;
+            text-decoration: none;
+            z-index: 9999;
+            transition: all 0.3s ease;
+            font-family: sans-serif;
+        }
+
+        .back-home-btn:hover {
+            background: rgba(0, 0, 0, 0.9);
+            border-color: rgba(255, 255, 255, 0.6);
+            transform: translateX(-5px);
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            color: #2c3e50;
+        }
+        .header {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .header h2 {
+            font-size: 2rem;
+            color: #ffffff;
+            text-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            letter-spacing: 1px;
+        }
+        .progress-badge {
+            background: rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+            padding: 8px 20px;
+            border-radius: 30px;
+            font-weight: bold;
+            color: #ffffff;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border: 1px solid rgba(255,255,255,0.4);
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.65);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 650px;
+            padding: 40px;
+            box-sizing: border-box;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+            position: relative;
+        }
+        .question-text {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 30px;
+            line-height: 1.5;
+            color: #1a252f;
+        }
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .option-btn {
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            padding: 15px 20px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            color: #34495e;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+        }
+        .option-btn:hover:not(:disabled) {
+            background: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.05);
+        }
+        .option-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        .option-btn.correct {
+            background: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+            font-weight: bold;
+        }
+        .option-btn.wrong {
+            background: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+            animation: shake 0.4s;
+        }
+        .explanation-box {
+            max-height: 0;
+            opacity: 0;
+            margin-top: 0;
+            padding: 0 20px;
+            background: rgba(52, 152, 219, 0.1);
+            border-left: 4px solid #3498db;
+            border-radius: 0 10px 10px 0;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+        }
+        .explanation-box.show {
+            max-height: 300px;
+            opacity: 1;
+            margin-top: 25px;
+            padding: 20px;
+        }
+        .explanation-text {
+            font-size: 1.05rem;
+            line-height: 1.6;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        .next-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+            float: right;
+        }
+        .next-btn:hover {
+            background: #2980b9;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            50% { transform: translateX(8px); }
+            75% { transform: translateX(-8px); }
+        }
+    </style>
+</head>
+<body>
+<a href="index.html" class="back-home-btn">← 返回控制中心</a>
+    <div class="header">
+        <h2>财务大数据分析认知</h2>
+    </div>
+
+    <div class="progress-badge" id="progress">档案加载中...</div>
+
+    <div class="glass-panel" id="main-panel">
+        <div class="question-text" id="q-text"></div>
+        <div class="options-container" id="options-container"></div>
+
+        <div class="explanation-box" id="explanation-box">
+            <div class="explanation-text" id="a-text"></div>
+            <button class="next-btn" id="next-btn" onclick="nextQuestion()">提取下一份档案</button>
+        </div>
+    </div>
+
+    <script>
+        const quizData = [
+            {
+                q: "财务分析萌芽期的分析重点是哪张财务报表？",
+                options: ["利润表", "资产负债表", "现金流量表", "所有者权益变动表"],
+                correct: 1,
+                a: "在传统财务分析的萌芽期，亚历山大·沃尔提出了流动比率和负债比率，明确以资产负债表作为分析的核心重点。"
+            },
+            {
+                q: "依据会计准则规定，企业财务报表至少应包含的组成部分不包括（）",
+                options: ["利润表", "税务申报表", "附注", "现金流量表"],
+                correct: 1,
+                a: "依据《企业会计准则》，财务报表至少应当包括资产负债表、利润表、现金流量表、所有者权益变动表以及附注。税务申报表属于税务管理范畴，不在此列。"
+            },
+            {
+                q: "资产负债表的核心会计恒等式为（）",
+                options: ["资产=所有者权益-负债", "资产=负债+所有者权益", "利润=收入-成本", "现金流入=现金流出"],
+                correct: 1,
+                a: "资产负债表是以资产、负债和所有者权益的相互关系为底层逻辑构建的，其核心恒等式为资产=负债+所有者权益。"
+            },
+            {
+                q: "资产负债表反映的是企业哪个时间维度的财务状况？",
+                options: ["某一特定时点", "某一会计期间", "连续多个会计年度", "任意时间段"],
+                correct: 0,
+                a: "资产负债表本质上是反映企业在某一时点的财务状况快照，它提供的是一个绝对静态的财务截面数据。"
+            },
+            {
+                q: "被称为企业经营业绩“成绩单”，反映企业一定期间经营成果的报表是（）",
+                options: ["资产负债表", "现金流量表", "利润表", "所有者权益变动表"],
+                correct: 2,
+                a: "利润表完整反映了企业在一定期间内的经营成果，因此被业界直观地视作展示企业经营业绩的“成绩单”。"
+            },
+            {
+                q: "现金流量表的三大现金流分类中，不包含以下哪一项？",
+                options: ["经营活动现金流", "投资活动现金流", "筹资活动现金流", "销售活动现金流"],
+                correct: 3,
+                a: "现金流量表严谨地划分为三大核心现金流：经营活动、投资活动和筹资活动。销售活动产生的现金收支通常被直接归类于经营活动之中。"
+            },
+            {
+                q: "财务分析发展进入成熟期后，分析导向呈现出的特征是（）",
+                options: ["信用导向", "投资导向", "预测导向", "历史回顾导向"],
+                correct: 2,
+                a: "财务分析进入成熟期后，其核心导向从单纯的回顾历史正式转向了预测导向，更加关注企业的未来发展轨迹与潜在价值。"
+            },
+            {
+                q: "1971年成为法定报表的是以下哪张财务报表？",
+                options: ["利润表", "现金流量表", "资产负债表", "所有者权益变动表"],
+                correct: 1,
+                a: "财务分析发展的历史转折点之一发生在1971年，现金流量表在这一年正式被确立为企业的法定报表。"
+            },
+            {
+                q: "趋势分析法的常见比较方式不包括（）",
+                options: ["定基比较", "环比比较", "计划与实际比较", "长期走势分析"],
+                correct: 2,
+                a: "趋势分析法的核心是将多年的连续数据与基期进行比较以观察长期走势，具体包含定基比较和环比比较。而计划与实际的对比严格来说属于比较分析法的范畴。"
+            },
+            {
+                q: "比率分析法的关键关注点不包括以下哪项？",
+                options: ["盈利能力", "偿债能力", "报表编制速度", "运营能力"],
+                correct: 2,
+                a: "比率分析法通过计算财务比率来衡量企业状况，其关键关注点涵盖盈利能力、偿债能力、运营能力和发展潜力。报表编制速度属于内部会计核算效率问题，并非财务分析的关注点。"
+            }
+        ];
+
+        let currentIndex = 0;
+        const qText = document.getElementById('q-text');
+        const optionsContainer = document.getElementById('options-container');
+        const explanationBox = document.getElementById('explanation-box');
+        const aText = document.getElementById('a-text');
+        const progressEl = document.getElementById('progress');
+        const nextBtn = document.getElementById('next-btn');
+
+        function loadQuestion() {
+            explanationBox.classList.remove('show');
+
+            const currentData = quizData[currentIndex];
+            progressEl.innerText = `档案解锁进度: ${currentIndex + 1} / ${quizData.length}`;
+            qText.innerText = currentData.q;
+
+            optionsContainer.innerHTML = '';
+            currentData.options.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = opt;
+                btn.onclick = () => checkAnswer(index, btn);
+                optionsContainer.appendChild(btn);
+            });
+
+            aText.innerText = currentData.a;
+
+            if (currentIndex === quizData.length - 1) {
+                nextBtn.innerText = "完成所有档案核阅";
+            } else {
+                nextBtn.innerText = "提取下一份档案";
+            }
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            const currentData = quizData[currentIndex];
+            const allBtns = optionsContainer.querySelectorAll('.option-btn');
+
+            allBtns.forEach(btn => btn.disabled = true);
+
+            if (selectedIndex === currentData.correct) {
+                btnElement.classList.add('correct');
+            } else {
+                btnElement.classList.add('wrong');
+                allBtns[currentData.correct].classList.add('correct');
+            }
+
+            setTimeout(() => {
+                explanationBox.classList.add('show');
+            }, 500);
+        }
+
+        function nextQuestion() {
+            if (currentIndex < quizData.length - 1) {
+                currentIndex++;
+                loadQuestion();
+            } else {
+                alert("太棒了！你已经成功掌握了所有财务大数据分析的核心概念！");
+            }
+        }
+
+        loadQuestion();
+    </script>
+</body>
+</html>

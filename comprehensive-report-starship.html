@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>综合分析报告 - 星际领航指挥舱</title>
+    <style>
+        .back-home-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-size: 1rem;
+            font-weight: bold;
+            text-decoration: none;
+            z-index: 9999;
+            transition: all 0.3s ease;
+            font-family: sans-serif;
+        }
+
+        .back-home-btn:hover {
+            background: rgba(0, 0, 0, 0.9);
+            border-color: rgba(255, 255, 255, 0.6);
+            transform: translateX(-5px);
+        }
+        :root {
+            --space-bg: #0b0c10;
+            --panel-bg: rgba(31, 40, 51, 0.85);
+            --neon-blue: #66fcf1;
+            --neon-dim: #45a29e;
+            --warning-red: #ff4c4c;
+            --success-green: #2ecc71;
+            --text-light: #c5c6c7;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--space-bg);
+            background-image:
+                radial-gradient(circle at 20% 30%, rgba(102, 252, 241, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(69, 162, 158, 0.05) 0%, transparent 50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            color: var(--text-light);
+            overflow: hidden;
+            position: relative;
+        }
+        /* 模拟星空背景 */
+        .stars {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: transparent;
+            z-index: 0;
+            pointer-events: none;
+        }
+        .stars::after {
+            content: "";
+            position: absolute;
+            width: 2px; height: 2px;
+            background: transparent;
+            box-shadow: 20vw 30vh #FFF, 40vw 80vh #FFF, 80vw 20vh #FFF, 60vw 60vh #FFF, 10vw 90vh #FFF, 90vw 10vh #FFF, 50vw 50vh #FFF;
+            animation: twinkle 4s infinite alternate;
+        }
+        .header-console {
+            text-align: center;
+            z-index: 10;
+            margin-bottom: 25px;
+            width: 90%;
+            max-width: 800px;
+            border-bottom: 2px solid var(--neon-dim);
+            padding-bottom: 15px;
+        }
+        .header-console h2 {
+            font-size: 2rem;
+            color: var(--neon-blue);
+            margin: 0;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            text-shadow: 0 0 15px rgba(102, 252, 241, 0.6);
+        }
+        .coord-tracker {
+            font-family: 'Consolas', monospace;
+            font-size: 1rem;
+            color: var(--neon-dim);
+            margin-top: 10px;
+            letter-spacing: 2px;
+        }
+        .main-dashboard {
+            width: 90%;
+            max-width: 800px;
+            background: var(--panel-bg);
+            border: 1px solid var(--neon-dim);
+            border-radius: 10px;
+            padding: 40px;
+            box-sizing: border-box;
+            box-shadow: 0 0 30px rgba(0,0,0,0.8), inset 0 0 20px rgba(69, 162, 158, 0.1);
+            position: relative;
+            z-index: 10;
+            backdrop-filter: blur(10px);
+            transition: all 0.4s ease;
+        }
+        /* 雷达扫描UI */
+        .radar {
+            position: absolute;
+            top: 20px; right: 20px;
+            width: 60px; height: 60px;
+            border: 2px solid var(--neon-dim);
+            border-radius: 50%;
+            overflow: hidden;
+            opacity: 0.5;
+        }
+        .radar::before {
+            content: '';
+            position: absolute;
+            top: 50%; left: 50%;
+            width: 50%; height: 50%;
+            background: linear-gradient(45deg, var(--neon-blue) 0%, transparent 100%);
+            transform-origin: 0 0;
+            animation: radar-spin 2s linear infinite;
+        }
+        .module-tag {
+            display: inline-block;
+            background: rgba(102, 252, 241, 0.1);
+            border: 1px solid var(--neon-blue);
+            color: var(--neon-blue);
+            padding: 5px 15px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+            letter-spacing: 1px;
+            font-family: 'Consolas', monospace;
+        }
+        .prompt-text {
+            font-size: 1.3rem;
+            line-height: 1.6;
+            color: #fff;
+            margin-bottom: 30px;
+            text-align: justify;
+        }
+        .controls-area {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .nav-btn {
+            background: rgba(11, 12, 16, 0.8);
+            border: 1px solid var(--neon-dim);
+            color: var(--text-light);
+            padding: 16px 20px;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        .nav-btn:hover:not(:disabled) {
+            background: rgba(69, 162, 158, 0.2);
+            border-color: var(--neon-blue);
+            color: #fff;
+            box-shadow: 0 0 15px rgba(102, 252, 241, 0.4);
+            transform: translateX(10px);
+        }
+        .nav-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+        .nav-btn.correct {
+            background: rgba(46, 204, 113, 0.2);
+            border-color: var(--success-green);
+            color: var(--success-green);
+            box-shadow: 0 0 20px rgba(46, 204, 113, 0.4);
+        }
+        .nav-btn.wrong {
+            background: rgba(255, 76, 76, 0.2);
+            border-color: var(--warning-red);
+            color: var(--warning-red);
+            box-shadow: 0 0 20px rgba(255, 76, 76, 0.4);
+        }
+        .nav-input-box {
+            display: flex;
+            gap: 15px;
+        }
+        .nav-input {
+            flex-grow: 1;
+            background: rgba(11, 12, 16, 0.9);
+            border: 1px solid var(--neon-blue);
+            color: var(--neon-blue);
+            padding: 15px;
+            border-radius: 6px;
+            font-family: 'Consolas', monospace;
+            font-size: 1.2rem;
+            text-align: center;
+            outline: none;
+            letter-spacing: 2px;
+        }
+        .nav-input:focus {
+            box-shadow: 0 0 15px rgba(102, 252, 241, 0.5);
+        }
+        .execute-btn {
+            background: var(--neon-dim);
+            color: var(--space-bg);
+            border: none;
+            padding: 0 30px;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: all 0.3s;
+        }
+        .execute-btn:hover:not(:disabled) {
+            background: var(--neon-blue);
+            box-shadow: 0 0 20px var(--neon-blue);
+        }
+        .hud-feedback {
+            margin-top: 25px;
+            padding: 20px;
+            background: rgba(11, 12, 16, 0.9);
+            border-left: 4px solid var(--neon-blue);
+            display: none;
+            animation: slideIn 0.4s ease-out;
+        }
+        .hud-feedback.show {
+            display: block;
+        }
+        .hud-title {
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+        .hud-text {
+            line-height: 1.6;
+            color: var(--text-light);
+            font-size: 1.1rem;
+        }
+        .warp-btn {
+            margin-top: 20px;
+            background: transparent;
+            border: 1px solid var(--neon-blue);
+            color: var(--neon-blue);
+            padding: 10px 25px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            float: right;
+            transition: all 0.2s;
+        }
+        .warp-btn:hover {
+            background: var(--neon-blue);
+            color: var(--space-bg);
+        }
+
+        @keyframes twinkle {
+            0% { opacity: 0.3; }
+            100% { opacity: 1; }
+        }
+        @keyframes radar-spin {
+            100% { transform: rotate(360deg); }
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+    </style>
+</head>
+<body>
+<a href="index.html" class="back-home-btn">← 返回控制中心</a>
+
+    <div class="stars"></div>
+
+    <div class="header-console">
+        <h2>星舰指挥舱：综合数据终端</h2>
+        <div class="coord-tracker" id="tracker">SECTOR: 1 / 8</div>
+    </div>
+
+    <div class="main-dashboard" id="dashboard">
+        <div class="radar"></div>
+
+        <div class="module-tag" id="module-tag">初始化...</div>
+        <div class="prompt-text" id="prompt-text"></div>
+
+        <div class="controls-area" id="controls-area">
+            </div>
+
+        <div class="hud-feedback" id="hud-feedback">
+            <div class="hud-title" id="hud-title"></div>
+            <div class="hud-text" id="hud-text"></div>
+            <button class="warp-btn" id="warp-btn" onclick="warpNext()">跃迁至下一星区</button>
+        </div>
+    </div>
+
+    <script>
+        const missionData = [
+            {
+                type: 'tf',
+                tag: 'SYSTEM_GOAL // 终极目标',
+                q: "逻辑校验：编写财务大数据分析报告，仅仅是为了将企业历史的财务数据进行罗列和汇总，不需要包含对未来的预测和主观的决策建议。",
+                options: ["核查属实 (True)", "存在谬误 (False)"],
+                correct: 1, // False
+                a: "航向更正：存在谬误。财务分析报告的最终成果，是为了让报表使用者了解企业的真实状况与发展前景，从而做出科学、合理的【决策】。它是行动的指南，而非单纯的历史账本。"
+            },
+            {
+                type: 'mcq',
+                tag: 'MACRO_SCAN // 宏观环境扫描',
+                q: "雷达探测：在对企业所处大环境进行评估时，迈克尔·波特提出的“钻石模型”主要用于分析什么？",
+                options: ["评估企业内部员工的薪酬水平", "分析一个国家或地区特定产业的竞争优势", "直接计算企业的净资产收益率", "衡量企业产品的售后服务质量"],
+                correct: 1,
+                a: "解析完毕：“钻石模型”是宏观分析的核心雷达，它通过生产要素、需求条件、相关产业、企业战略等维度，精准定位一个产业在特定地区的竞争壁垒和发展潜力。"
+            },
+            {
+                type: 'fill',
+                tag: 'INDUSTRY_CYCLE // 行业生命周期',
+                q: "参数注入：利用“行业增长率判断法”，当系统监测到该行业的营业收入同比增长率下降到 -10% 到 10% 之间时，通常判定该行业进入了 ______ 期。",
+                placeholder: "输入两个汉字",
+                correct: "成熟",
+                a: "状态确认：成熟期。在这个阶段，行业的高速增长已经停止，市场份额基本固定，企业之间的竞争从“抢地盘”转向了非价格手段的“拼内功”。"
+            },
+            {
+                type: 'fill',
+                tag: 'MARKET_CONCENTRATION // 市场集中度',
+                q: "参数注入：赫芬达尔指数（HHI）是衡量行业集中度的精密仪表。当HHI的计算结果无限接近数字 ______ 时，代表该市场已被一家企业独霸，接近完全垄断状态。",
+                placeholder: "输入单个阿拉伯数字",
+                correct: "1",
+                a: "状态确认：数值 1。HHI 越接近 0 代表市场越像完全竞争（玩家极多且分散），越接近 1 则代表市场集中度极高，呈现寡头甚至绝对垄断。"
+            },
+            {
+                type: 'mcq',
+                tag: 'MACRO_ECONOMICS // 经济指标',
+                q: "雷达探测：在收集国家统计局的宏观经济数据时，我们通常会高度关注“人均可支配收入”。这个指标最直接反映了宏观经济运转中的哪项核心动力？",
+                options: ["政府的财政税收能力", "企业的技术研发能力", "居民的消费能力与意愿", "银行的货币发行总量"],
+                correct: 2,
+                a: "解析完毕：人均可支配收入是衡量消费需求的绝对标尺。收入上升直接带动消费能力增强，从而形成需求拉动生产的良性宏观经济循环。"
+            },
+            {
+                type: 'fill',
+                tag: 'PYTHON_ENGINE // 数据清洗引擎',
+                q: "代码注入：在Python控制台中，使用 `pd.merge()` 函数将两张财务表按共同列合并。若只想保留两张表中“都能匹配上”的记录（交集），参数 `how` 必须设置为 '______'。",
+                placeholder: "输入纯英文参数",
+                correct: "inner",
+                a: "系统指令：inner（内连接）。这是最严谨的数据对接方式，就像两艘飞船的对接舱口，只有身份标识完全一致的数据行才会被允许合并保留。"
+            },
+            {
+                type: 'tf',
+                tag: 'REPORT_WRITING // 结论编撰法则',
+                q: "逻辑校验：撰写分析报告结论的“黄金法则”之一是实事求是。这意味着即便数据反映出企业存在严重的财务危机，也必须如实诊断，绝不夸大也不隐藏。",
+                options: ["核查属实 (True)", "存在谬误 (False)"],
+                correct: 0, // True
+                a: "航向确认：核查属实。数据分析师的职业底线就是客观。必须基于底层真实数据得出结论，用最直观的数字支持发现，为决策者提供未经过滤的真实情报。"
+            },
+            {
+                type: 'fill',
+                tag: 'REPORT_STRUCTURE // 终极报告结构',
+                q: "参数注入：一份标准化的大数据财务分析报告，其结尾结论部分必须包含三大支柱：核心发现总结、问题诊断分析以及改进 ______ 方案。",
+                placeholder: "输入两个汉字",
+                correct: "建议",
+                a: "状态确认：建议。发现问题只是完成了诊断，提出具体、可操作的优化和改进建议，才是整份报告创造核心商业价值的落脚点。"
+            }
+        ];
+
+        let currentSector = 0;
+        const moduleTag = document.getElementById('module-tag');
+        const promptText = document.getElementById('prompt-text');
+        const controlsArea = document.getElementById('controls-area');
+        const hudFeedback = document.getElementById('hud-feedback');
+        const hudTitle = document.getElementById('hud-title');
+        const hudText = document.getElementById('hud-text');
+        const tracker = document.getElementById('tracker');
+        const warpBtn = document.getElementById('warp-btn');
+        const dashboard = document.getElementById('dashboard');
+
+        function loadSector() {
+            hudFeedback.classList.remove('show');
+            const current = missionData[currentSector];
+            tracker.innerText = `SECTOR: ${currentSector + 1} / ${missionData.length}`;
+            moduleTag.innerText = current.tag;
+            promptText.innerText = current.q;
+
+            controlsArea.innerHTML = '';
+
+            if (current.type === 'mcq' || current.type === 'tf') {
+                current.options.forEach((opt, idx) => {
+                    const btn = document.createElement('button');
+                    btn.className = 'nav-btn';
+                    btn.innerText = opt;
+                    btn.onclick = () => verifyNav(idx, btn);
+                    controlsArea.appendChild(btn);
+                });
+            } else if (current.type === 'fill') {
+                controlsArea.innerHTML = `
+                    <div class="nav-input-box">
+                        <input type="text" id="navInput" class="nav-input" placeholder="[ 等待参数输入 ] -> ${current.placeholder}" autocomplete="off">
+                        <button class="execute-btn" onclick="verifyExecute()">执行</button>
+                    </div>
+                `;
+            }
+        }
+
+        function triggerHud(isCorrect) {
+            const current = missionData[currentSector];
+            hudText.innerText = current.a;
+
+            if (isCorrect) {
+                dashboard.style.borderColor = "var(--success-green)";
+                hudFeedback.style.borderLeftColor = "var(--success-green)";
+                hudTitle.style.color = "var(--success-green)";
+                hudTitle.innerText = "ROUTE LOCKED // 航线锁定";
+            } else {
+                dashboard.style.borderColor = "var(--warning-red)";
+                hudFeedback.style.borderLeftColor = "var(--warning-red)";
+                hudTitle.style.color = "var(--warning-red)";
+                hudTitle.innerText = "COURSE DEVIATION // 偏离航线";
+            }
+
+            if (currentSector === missionData.length - 1) {
+                warpBtn.innerText = "结束航行，生成终极报告";
+            }
+
+            hudFeedback.classList.add('show');
+        }
+
+        function verifyNav(selectedIndex, btnEl) {
+            const current = missionData[currentSector];
+            const allBtns = controlsArea.querySelectorAll('.nav-btn');
+            allBtns.forEach(b => b.disabled = true);
+
+            const isCorrect = (selectedIndex === current.correct);
+            if (isCorrect) {
+                btnEl.classList.add('correct');
+            } else {
+                btnEl.classList.add('wrong');
+                allBtns[current.correct].classList.add('correct');
+            }
+            triggerHud(isCorrect);
+        }
+
+        function verifyExecute() {
+            const current = missionData[currentSector];
+            const inputEl = document.getElementById('navInput');
+            const execBtn = controlsArea.querySelector('.execute-btn');
+
+            inputEl.disabled = true;
+            execBtn.disabled = true;
+
+            const val = inputEl.value.trim().toLowerCase();
+            const correctVal = current.correct.toLowerCase();
+            const isCorrect = (val === correctVal);
+
+            if (isCorrect) {
+                inputEl.style.borderColor = "var(--success-green)";
+                inputEl.style.color = "var(--success-green)";
+            } else {
+                inputEl.style.borderColor = "var(--warning-red)";
+                inputEl.style.color = "var(--warning-red)";
+                inputEl.value = `SYS_ERR: 标准参数应为 [ ${current.correct} ]`;
+            }
+            triggerHud(isCorrect);
+        }
+
+        function warpNext() {
+            if (currentSector < missionData.length - 1) {
+                currentSector++;
+                dashboard.style.borderColor = "var(--neon-dim)";
+                loadSector();
+            } else {
+                controlsArea.innerHTML = '';
+                moduleTag.innerText = "MISSION_ACCOMPLISHED";
+                promptText.innerHTML = `<span style="color:var(--neon-blue); font-weight:bold; font-size:1.5rem;">全系统数据已贯通。综合财务大数据分析报告生成完毕。</span><br><br>指挥官，您的企业数据洞察之旅已圆满结束，星舰即将进入自动巡航模式。`;
+                hudFeedback.style.display = 'none';
+                tracker.innerText = "SYSTEM STANDBY";
+                dashboard.style.borderColor = "var(--neon-blue)";
+            }
+        }
+
+        loadSector();
+    </script>
+</body>
+</html>

@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>商务智能认知 - 赛博闯关</title>
+    <style>
+        .back-home-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-size: 1rem;
+            font-weight: bold;
+            text-decoration: none;
+            z-index: 9999;
+            transition: all 0.3s ease;
+            font-family: sans-serif;
+        }
+
+        .back-home-btn:hover {
+            background: rgba(0, 0, 0, 0.9);
+            border-color: rgba(255, 255, 255, 0.6);
+            transform: translateX(-5px);
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0f172a;
+            background-image: radial-gradient(circle at top right, #1e293b, #0f172a);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            color: #e2e8f0;
+            overflow: hidden;
+        }
+        .header {
+            margin-bottom: 20px;
+            text-align: center;
+            text-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+        }
+        .header h2 {
+            color: #38bdf8;
+            letter-spacing: 2px;
+        }
+        .progress {
+            font-size: 1.2rem;
+            color: #94a3b8;
+            margin-bottom: 30px;
+            font-weight: bold;
+            background: rgba(30, 41, 59, 0.7);
+            padding: 5px 15px;
+            border-radius: 20px;
+            border: 1px solid #334155;
+        }
+        .flashcard-container {
+            width: 90%;
+            max-width: 600px;
+            height: 420px;
+            perspective: 1200px;
+        }
+        .flashcard {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform-style: preserve-3d;
+        }
+        .flashcard.is-flipped {
+            transform: rotateY(180deg);
+        }
+        .card-face {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            padding: 30px;
+            box-sizing: border-box;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5), inset 0 0 0 1px rgba(255,255,255,0.1);
+        }
+        .card-front {
+            background: linear-gradient(145deg, #1e293b, #0f172a);
+            align-items: center;
+            justify-content: flex-start;
+        }
+        .card-back {
+            background: linear-gradient(145deg, #0ea5e9, #0284c7);
+            color: white;
+            transform: rotateY(180deg);
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+        .question-text {
+            font-size: 1.2rem;
+            line-height: 1.5;
+            margin-bottom: 25px;
+            text-align: center;
+            color: #f8fafc;
+        }
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            width: 100%;
+        }
+        .option-btn {
+            background-color: rgba(51, 65, 85, 0.6);
+            color: #cbd5e1;
+            border: 1px solid #475569;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+        }
+        .option-btn:hover:not(:disabled) {
+            background-color: rgba(56, 189, 248, 0.2);
+            border-color: #38bdf8;
+            color: #fff;
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.3);
+        }
+        .option-btn:disabled {
+            cursor: not-allowed;
+        }
+        .option-btn.correct {
+            background-color: rgba(34, 197, 94, 0.2);
+            border-color: #22c55e;
+            color: #4ade80;
+            box-shadow: 0 0 20px rgba(34, 197, 94, 0.4);
+        }
+        .option-btn.wrong {
+            background-color: rgba(239, 68, 68, 0.2);
+            border-color: #ef4444;
+            color: #f87171;
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
+            animation: shake 0.4s;
+        }
+        .answer-text {
+            font-size: 1.3rem;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        .next-btn {
+            background-color: #0f172a;
+            color: #38bdf8;
+            border: 1px solid #38bdf8;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .next-btn:hover {
+            background-color: #38bdf8;
+            color: #0f172a;
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.6);
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+        }
+    </style>
+</head>
+<body>
+<a href="index.html" class="back-home-btn">← 返回控制中心</a>
+    <div class="header">
+        <h2>系统启动：商务智能认知测试</h2>
+    </div>
+
+    <div class="progress" id="progress">进程: 1 / 10</div>
+
+    <div class="flashcard-container">
+        <div class="flashcard" id="flashcard">
+
+            <div class="card-face card-front">
+                <div class="question-text" id="q-text">加载中...</div>
+                <div class="options-grid" id="options-container">
+                    </div>
+            </div>
+
+            <div class="card-face card-back">
+                <div class="answer-text" id="a-text">解析加载中...</div>
+                <button class="next-btn" id="next-btn" onclick="nextCard()">进入下一层级</button>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        const quizData = [
+            {
+                q: "数字经济与传统经济在核心资源上有什么根本区别？",
+                options: ["资本与土地取代了信息", "经验与流程成为主导", "数据、算法和平台成为核心", "人力与机器算力完全解绑"],
+                correct: 2,
+                a: "核心差异在于资源置换。传统经济高度依赖资本、土地和劳动力，而在数字经济模型中，数据、算法和平台成为了全新的核心生产要素。"
+            },
+            {
+                q: "数字经济时代的商业决策方式发生了怎样的转变？",
+                options: ["由经验驱动转变为数据驱动", "由流程驱动转变为结果驱动", "由人工决策转变为随机决策", "由线下审批转变为线上审批"],
+                correct: 0,
+                a: "决策链路被重构。管理者的主观判断被客观的数据分析所取代，商业行为正式从传统的经验驱动转变为数据驱动。"
+            },
+            {
+                q: "概括来说，数字经济具备哪四大核心特征？",
+                options: ["孤岛化、单一化、高成本、低效率", "数据驱动、创新性、融合性、平台化", "资本驱动、传统性、分散性、区域化", "硬件驱动、保密性、独立性、本地化"],
+                correct: 1,
+                a: "这四大特征是数字经济的基石：数据驱动提供了燃料，创新性提供了动力，融合性打破了产业边界，平台化则重构了组织形式。"
+            },
+            {
+                q: "商务智能技术的核心运作流程包含哪三个主要环节？",
+                options: ["数据采集、数据销毁、数据加密", "数据整合、数据分析、数据可视化", "需求打磨、代码编写、软件测试", "硬件组装、系统安装、网络配置"],
+                correct: 1,
+                a: "商务智能（BI）是一套完整的数据处理流水线。它首先将分散的数据进行整合，随后植入算法进行分析，最终通过可视化图表呈现出来。"
+            },
+            {
+                q: "企业引入商务智能技术的最终目的是什么？",
+                options: ["全面裁减冗余的员工岗位", "无脑提升硬件设备的运行速度", "提供客观数据以支持企业决策", "将所有底层业务流程完全自动化"],
+                correct: 2,
+                a: "所有的数据处理都服务于同一个终极目标：为企业管理层提供科学、客观的数据依据，从而精准支持企业决策的下达。"
+            },
+            {
+                q: "商务智能技术通常具备哪四大特征？",
+                options: ["封闭性、主观性、硬件依赖、不可逆", "技术融合性、决策导向性、数据依赖性、可扩展性", "单一性、流程导向性、人工依赖、局限性", "理论性、学术导向、资金依赖、偶然性"],
+                correct: 1,
+                a: "商务智能系统必须具备融合多项前端技术的能力（技术融合），一切分析服务于决策（决策导向），底层依赖高质量数据源（数据依赖），并能随时扩容（可扩展性）。"
+            },
+            {
+                q: "商务智能的“可扩展性”在实际应用中意味着什么？",
+                options: ["系统能随数据增长快速扩容并保持实时处理能力", "系统可以随意安装在任何品牌的便携电脑上", "系统能自动编写出全新的底层系统代码", "系统可以无限期地推迟低优先级的数据处理任务"],
+                correct: 0,
+                a: "可扩展性指的是架构的弹性。当企业数据量呈指数级暴增时，底层的数据库结构能够快速无缝扩充容量，并始终保持对海量数据的低延迟、实时处理能力。"
+            },
+            {
+                q: "传统的财务工作模式通常存在什么明显的痛点？",
+                options: ["后端的财务分析软件过于昂贵", "业务与财务脱节形成信息孤岛影响决策", "底层财务人员过度干预前端业务的开展", "所有的报销审批流程都必须在线下打印进行"],
+                correct: 1,
+                a: "痛点在于信息阻滞。业务部门和财务部门之间往往缺乏数据互通，财务滞后于业务发生，这种脱节会形成严重的信息孤岛，直接影响管理层决策的准确性。"
+            },
+            {
+                q: "“业财融合”模式如何改变传统的脱节状态？",
+                options: ["要求所有业务人员去考取专业的会计资格证书", "财务直接深入参与前端业务实现决策实时化与科学化", "利用AI彻底取消原有的后端财务部门编制", "将核心财务数据全部进行加密对业务部门保密"],
+                correct: 1,
+                a: "这种模式打破了部门物理与数据壁垒。财务人员及财务思维被前置，直接参与到业务活动的规划与执行中，从而实现了企业决策的实时化、科学化和全局资源的优化配置。"
+            },
+            {
+                q: "业财融合模式主要体现在哪四个核心特征上？",
+                options: ["滞后性、人工化、表面结合、事后补救", "隐蔽性、机械化、相互独立、成本最小化", "实时性、智能化、深度融合、风险管控前置", "周期性、制度化、形式统一、业务审计后置"],
+                correct: 2,
+                a: "这四个特征构成了业财融合的运转闭环：数据反馈必须具备实时性与智能化，部门运作必须深度融合，最终使得财务的风险管控机制得以在业务发生前置触发。"
+            }
+        ];
+
+        let currentIndex = 0;
+        const flashcard = document.getElementById('flashcard');
+        const qText = document.getElementById('q-text');
+        const optionsContainer = document.getElementById('options-container');
+        const aText = document.getElementById('a-text');
+        const progressEl = document.getElementById('progress');
+        const nextBtn = document.getElementById('next-btn');
+
+        function loadQuestion() {
+            // 确保卡片处于正面状态
+            flashcard.classList.remove('is-flipped');
+
+            const currentData = quizData[currentIndex];
+
+            // 延迟渲染文字，避免翻转过程中的视觉穿帮
+            setTimeout(() => {
+                progressEl.innerText = `进程: ${currentIndex + 1} / ${quizData.length}`;
+                qText.innerText = currentData.q;
+
+                // 清空并重新生成选项
+                optionsContainer.innerHTML = '';
+                currentData.options.forEach((opt, index) => {
+                    const btn = document.createElement('button');
+                    btn.className = 'option-btn';
+                    btn.innerText = opt;
+                    btn.onclick = () => checkAnswer(index, btn);
+                    optionsContainer.appendChild(btn);
+                });
+
+                aText.innerText = currentData.a;
+
+                if (currentIndex === quizData.length - 1) {
+                    nextBtn.innerText = "数据写入完毕 - 结束测试";
+                } else {
+                    nextBtn.innerText = "进入下一层级";
+                }
+            }, 300);
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            const currentData = quizData[currentIndex];
+            const allBtns = optionsContainer.querySelectorAll('.option-btn');
+
+            // 锁定所有按钮，防止重复点击触发多次逻辑
+            allBtns.forEach(btn => btn.disabled = true);
+
+            if (selectedIndex === currentData.correct) {
+                btnElement.classList.add('correct');
+            } else {
+                btnElement.classList.add('wrong');
+                // 同步高亮显示正确答案，运用格式塔心理学强化认知
+                allBtns[currentData.correct].classList.add('correct');
+            }
+
+            // 触发 1.2 秒的延迟，给予学生神经元处理正确/错误反馈的时间，随后翻转卡片
+            setTimeout(() => {
+                flashcard.classList.add('is-flipped');
+            }, 1200);
+        }
+
+        function nextCard() {
+            if (currentIndex < quizData.length - 1) {
+                currentIndex++;
+                loadQuestion();
+            } else {
+                alert("协议完成！你已成功通关所有商务智能认知测试节点！");
+            }
+        }
+
+        // 初始化底层数据
+        loadQuestion();
+    </script>
+</body>
+</html>

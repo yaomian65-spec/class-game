@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python 财务数据分析 - 终端测试核心</title>
+    <style>
+        .back-home-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-size: 1rem;
+            font-weight: bold;
+            text-decoration: none;
+            z-index: 9999;
+            transition: all 0.3s ease;
+            font-family: sans-serif;
+        }
+
+        .back-home-btn:hover {
+            background: rgba(0, 0, 0, 0.9);
+            border-color: rgba(255, 255, 255, 0.6);
+            transform: translateX(-5px);
+        }
+        body {
+            font-family: 'Consolas', 'Courier New', Courier, monospace;
+            background-color: #0d1117;
+            color: #c9d1d9;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            overflow-x: hidden;
+        }
+        .terminal-container {
+            width: 95%;
+            max-width: 800px;
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 10px;
+            box-shadow: 0 0 30px rgba(88, 166, 255, 0.15);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .terminal-header {
+            background: #21262d;
+            padding: 10px 20px;
+            border-bottom: 1px solid #30363d;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        .dot.red { background: #ff5f56; }
+        .dot.yellow { background: #ffbd2e; }
+        .dot.green { background: #27c93f; }
+        .header-title {
+            margin-left: 15px;
+            color: #8b949e;
+            font-size: 0.9rem;
+        }
+        .terminal-body {
+            padding: 30px;
+            min-height: 350px;
+            position: relative;
+        }
+        .system-prompt {
+            color: #58a6ff;
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+        .system-prompt span {
+            color: #3fb950;
+        }
+        .question-content {
+            font-size: 1.15rem;
+            line-height: 1.6;
+            margin-bottom: 25px;
+            color: #e6edf3;
+        }
+        .interactive-area {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .mcq-btn {
+            background: #21262d;
+            border: 1px solid #30363d;
+            color: #c9d1d9;
+            padding: 12px 20px;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 1rem;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s;
+        }
+        .mcq-btn:hover:not(:disabled) {
+            background: #30363d;
+            border-color: #8b949e;
+        }
+        .mcq-btn.correct {
+            background: rgba(46, 160, 67, 0.15);
+            border-color: #3fb950;
+            color: #3fb950;
+        }
+        .mcq-btn.wrong {
+            background: rgba(248, 81, 73, 0.15);
+            border-color: #f85149;
+            color: #f85149;
+        }
+        .input-box {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            color: #58a6ff;
+            padding: 10px 15px;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 1rem;
+            width: 100%;
+            box-sizing: border-box;
+            outline: none;
+            text-align: center;
+            letter-spacing: 1px;
+        }
+        .input-box:focus {
+            border-color: #58a6ff;
+        }
+        .action-btn {
+            align-self: flex-start;
+            background: #238636;
+            color: #ffffff;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .action-btn:hover {
+            background: #2ea043;
+        }
+        .output-console {
+            margin-top: 25px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border-left: 4px solid #a371f7;
+            display: none;
+            animation: fadeIn 0.4s ease-out;
+        }
+        .output-console.show {
+            display: block;
+        }
+        .output-title {
+            color: #a371f7;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .output-text {
+            color: #e6edf3;
+            line-height: 1.5;
+        }
+        .status-bar {
+            background: #21262d;
+            padding: 8px 20px;
+            border-top: 1px solid #30363d;
+            font-size: 0.85rem;
+            color: #8b949e;
+            display: flex;
+            justify-content: space-between;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+<a href="index.html" class="back-home-btn">← 返回控制中心</a>
+    <div class="terminal-container">
+        <div class="terminal-header">
+            <div class="dot red"></div>
+            <div class="dot yellow"></div>
+            <div class="dot green"></div>
+            <div class="header-title">bash - python_data_analysis.sh</div>
+        </div>
+
+        <div class="terminal-body">
+            <div class="system-prompt">root@financial-data:~# <span>./execute_test.py</span></div>
+            <div id="question-container">
+                </div>
+
+            <div class="output-console" id="output-console">
+                <div class="output-title">Standard Output / System Log:</div>
+                <div class="output-text" id="output-text"></div>
+                <button class="action-btn" style="margin-top: 20px; background: #1f6feb;" onclick="nextNode()">继续执行 (Continue)</button>
+            </div>
+        </div>
+
+        <div class="status-bar">
+            <div id="progress-indicator">Process: 1/10</div>
+            <div>Env: Jupyter/Pandas | Encoding: UTF-8</div>
+        </div>
+    </div>
+
+    <script>
+        const testData = [
+            {
+                type: 'mcq',
+                q: "[系统提问] 在Python中，使用input()函数获取用户输入的内容，其默认数据类型为：",
+                options: ["int（整数）", "str（字符串）", "float（浮点数）", "bool（布尔值）"],
+                correct: 1,
+                a: "核对通过。input() 捕获的所有按键输入都会被底层解析为原生的 str（字符串）类型。"
+            },
+            {
+                type: 'mcq',
+                q: "[系统提问] Jupyter Notebook中，若想快速为整行代码添加/撤销注释，常用的快捷键是：",
+                options: ["Ctrl+S", "Ctrl+/", "Ctrl+Enter", "Alt+Enter"],
+                correct: 1,
+                a: "核对通过。Ctrl+/ 是绝大多数现代 IDE 和 Jupyter 环境中统一切换单行/多行注释的快捷组合键。"
+            },
+            {
+                type: 'mcq',
+                q: "[系统提问] Pandas中用于读取网页中HTML格式表格数据的核心函数是：",
+                options: ["pd.read_csv()", "pd.read_excel()", "pd.read_html()", "pd.DataFrame()"],
+                correct: 2,
+                a: "核对通过。pd.read_html() 能够自动解析网页 DOM 树，并提取页面中所有的 table 标签元素转化为 DataFrame 列表。"
+            },
+            {
+                type: 'fill',
+                q: "[参数注入] Python的布尔类型首字母必须大写，其真值和假值对应的保留字分别是 ______ 和 ______。",
+                placeholders: ["单词1", "单词2"],
+                a: "系统标准常量：True；False。Python 对大小写极其敏感，首字母大写是解释器的硬性语法规定。"
+            },
+            {
+                type: 'fill',
+                q: "[参数注入] Jupyter Kernel菜单中，______ 功能用于强制中断当前进程，______ 功能用于完全重启内核。",
+                placeholders: ["单词1", "单词2"],
+                a: "系统标准常量：Interrupt；Restart。Interrupt 仅发送中断信号终止当前计算，而 Restart 会彻底清空内存变量并重新初始化环境。"
+            },
+            {
+                type: 'fill',
+                q: "[参数注入] Pandas导出CSV文件时，若不想保存默认的数字行索引，需要将参数 index 的值设置为 ______。",
+                placeholders: ["单词1"],
+                a: "系统标准常量：False。屏蔽默认生成的数字索引可以有效避免数据二次导入时产生多余的无意义数据列。"
+            },
+            {
+                type: 'tf',
+                q: "[逻辑判断] 在Python中，使用 type() 函数可以直接检测并返回指定变量的底层数据类型。",
+                correct: true,
+                a: "逻辑判定：真 (True)。type() 函数会直接读取内存地址中的对象元数据并打印其归属的类类型。"
+            },
+            {
+                type: 'tf',
+                q: "[逻辑判断] Python中的列表（List）是一种不可变的数据结构，一旦创建便无法修改其内部元素。",
+                correct: false,
+                a: "逻辑判定：假 (False)。列表（List）是动态的、可变的数据结构。元组（Tuple）才是不可变的数据结构。"
+            },
+            {
+                type: 'tf',
+                q: "[逻辑判断] 在进行网页数据预处理时，Pandas 的 df.T 方法主要用于实现数据的行列转置。",
+                correct: true,
+                a: "逻辑判定：真 (True)。df.T 触发矩阵转置操作，将底层数据的二维数组行列轴对调，常用于将宽表转换为长表。"
+            },
+            {
+                type: 'tf',
+                q: "[逻辑判断] 在Python的基础语法中，单独的一个等号 `=` 既可以用来进行变量赋值，也可以用来判断左右两边的值是否相等。",
+                correct: false,
+                a: "逻辑判定：假 (False)。单等号 `=` 仅用于将内存地址或数据绑定给变量（赋值）；判断数值是否相等必须使用双等号 `==`。"
+            }
+        ];
+
+        let currentIndex = 0;
+        const container = document.getElementById('question-container');
+        const outputConsole = document.getElementById('output-console');
+        const outputText = document.getElementById('output-text');
+        const progressIndicator = document.getElementById('progress-indicator');
+
+        function renderQuestion() {
+            outputConsole.classList.remove('show');
+            const current = testData[currentIndex];
+            progressIndicator.innerText = `Process: ${currentIndex + 1}/${testData.length}`;
+
+            let html = `<div class="question-content">${current.q}</div>`;
+            html += `<div class="interactive-area">`;
+
+            if (current.type === 'mcq') {
+                current.options.forEach((opt, idx) => {
+                    html += `<button class="mcq-btn" onclick="checkMcq(${idx}, this)">${opt}</button>`;
+                });
+            } else if (current.type === 'fill') {
+                current.placeholders.forEach(ph => {
+                    html += `<input type="text" class="input-box" placeholder="请输入唯一限定${ph}...">`;
+                });
+                html += `<button class="action-btn" onclick="showExplanation()">提交参数并核对 (Submit & Verify)</button>`;
+            } else if (current.type === 'tf') {
+                html += `<button class="mcq-btn" onclick="checkTf(true, this)">[ 逻辑推演 ] True (真)</button>`;
+                html += `<button class="mcq-btn" onclick="checkTf(false, this)">[ 逻辑推演 ] False (假)</button>`;
+            }
+
+            html += `</div>`;
+            container.innerHTML = html;
+        }
+
+        function checkMcq(selectedIndex, btnElement) {
+            const current = testData[currentIndex];
+            const allBtns = container.querySelectorAll('.mcq-btn');
+            allBtns.forEach(btn => btn.disabled = true);
+
+            if (selectedIndex === current.correct) {
+                btnElement.classList.add('correct');
+            } else {
+                btnElement.classList.add('wrong');
+                allBtns[current.correct].classList.add('correct');
+            }
+            showExplanation();
+        }
+
+        function checkTf(selectedLogic, btnElement) {
+            const current = testData[currentIndex];
+            const allBtns = container.querySelectorAll('.mcq-btn');
+            allBtns.forEach(btn => btn.disabled = true);
+
+            if (selectedLogic === current.correct) {
+                btnElement.classList.add('correct');
+            } else {
+                btnElement.classList.add('wrong');
+                // Highlight the correct logic
+                const correctIndex = current.correct ? 0 : 1;
+                allBtns[correctIndex].classList.add('correct');
+            }
+            showExplanation();
+        }
+
+        function showExplanation() {
+            outputText.innerText = testData[currentIndex].a;
+            outputConsole.classList.add('show');
+
+            if(currentIndex === testData.length - 1){
+                outputConsole.querySelector('.action-btn').innerText = "断开终端连接 (Exit Session)";
+            }
+        }
+
+        function nextNode() {
+            if (currentIndex < testData.length - 1) {
+                currentIndex++;
+                renderQuestion();
+            } else {
+                container.innerHTML = `<div class="system-prompt" style="color:#27c93f;">[Process Completed]</div><div class="question-content">所有数据分析客观题节点已核对完毕。终端即将进入休眠状态...</div>`;
+                outputConsole.style.display = 'none';
+            }
+        }
+
+        // Initialize
+        renderQuestion();
+    </script>
+</body>
+</html>

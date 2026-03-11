@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>现金流量表分析 - 职场卷宗解密</title>
+    <style>
+        .back-home-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-size: 1rem;
+            font-weight: bold;
+            text-decoration: none;
+            z-index: 9999;
+            transition: all 0.3s ease;
+            font-family: sans-serif;
+        }
+
+        .back-home-btn:hover {
+            background: rgba(0, 0, 0, 0.9);
+            border-color: rgba(255, 255, 255, 0.6);
+            transform: translateX(-5px);
+        }
+        body {
+            font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
+            background-color: #dcd3b6;
+            background-image: url('data:image/svg+xml;utf8,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch"/></filter><rect width="100" height="100" filter="url(%23noise)" opacity="0.08"/></svg>');
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            color: #3e3a35;
+        }
+        .archive-header {
+            margin-bottom: 20px;
+            text-align: center;
+            border-bottom: 2px dashed #8b7d6b;
+            padding-bottom: 10px;
+            width: 90%;
+            max-width: 700px;
+        }
+        .archive-header h2 {
+            font-size: 2.2rem;
+            color: #5c4b37;
+            margin: 0;
+            letter-spacing: 4px;
+        }
+        .progress-tag {
+            font-size: 1rem;
+            color: #8b7d6b;
+            font-weight: bold;
+            margin-top: 10px;
+            text-transform: uppercase;
+        }
+        .case-file-container {
+            width: 90%;
+            max-width: 700px;
+            position: relative;
+        }
+        .paper-sheet {
+            background-color: #fdfbf7;
+            padding: 40px;
+            border-radius: 4px;
+            box-shadow: 2px 4px 15px rgba(0,0,0,0.15), inset 0 0 30px rgba(139,125,107,0.05);
+            position: relative;
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+            border-left: 5px solid #8b7d6b;
+        }
+        .paper-clip {
+            position: absolute;
+            top: -15px;
+            left: 30px;
+            width: 15px;
+            height: 40px;
+            border: 3px solid #b0a99f;
+            border-radius: 10px;
+            background: transparent;
+            z-index: 10;
+        }
+        .case-title {
+            font-size: 1.1rem;
+            color: #a83232;
+            font-weight: bold;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #e0d8c8;
+            padding-bottom: 5px;
+            display: inline-block;
+        }
+        .question-text {
+            font-size: 1.3rem;
+            line-height: 1.7;
+            margin-bottom: 30px;
+            font-weight: 500;
+        }
+        .options-group {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .btn-option {
+            background: #ffffff;
+            border: 2px solid #dcd3b6;
+            color: #5c4b37;
+            padding: 15px 20px;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-option:hover:not(:disabled) {
+            background: #f4eedd;
+            border-color: #a83232;
+            transform: translateX(5px);
+        }
+        .btn-option:disabled {
+            cursor: not-allowed;
+        }
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .case-input {
+            flex-grow: 1;
+            background: transparent;
+            border: none;
+            border-bottom: 2px dashed #8b7d6b;
+            font-size: 1.3rem;
+            color: #a83232;
+            padding: 10px;
+            outline: none;
+            text-align: center;
+            font-family: 'Consolas', monospace;
+        }
+        .case-input:focus {
+            border-bottom-color: #a83232;
+        }
+        .submit-btn {
+            background: #5c4b37;
+            color: #fff;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 4px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .submit-btn:hover:not(:disabled) {
+            background: #a83232;
+        }
+        .stamp {
+            position: absolute;
+            top: 50px;
+            right: 30px;
+            font-size: 2rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            border: 4px solid;
+            padding: 10px 20px;
+            border-radius: 8px;
+            transform: rotate(-15deg) scale(2);
+            opacity: 0;
+            pointer-events: none;
+            z-index: 20;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .stamp.show {
+            transform: rotate(-15deg) scale(1);
+            opacity: 0.8;
+        }
+        .stamp.approved {
+            color: #278f44;
+            border-color: #278f44;
+        }
+        .stamp.rejected {
+            color: #a83232;
+            border-color: #a83232;
+        }
+        .verdict-box {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f4eedd;
+            border-left: 4px solid #a83232;
+            display: none;
+            animation: slideDown 0.4s ease-out;
+        }
+        .verdict-box.show {
+            display: block;
+        }
+        .verdict-title {
+            font-weight: bold;
+            color: #a83232;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+        .verdict-text {
+            line-height: 1.6;
+            color: #3e3a35;
+        }
+        .next-btn {
+            margin-top: 25px;
+            align-self: flex-end;
+            background: transparent;
+            color: #a83232;
+            border: 2px solid #a83232;
+            padding: 10px 25px;
+            border-radius: 4px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .next-btn:hover {
+            background: #a83232;
+            color: #fff;
+        }
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+<a href="index.html" class="back-home-btn">← 返回控制中心</a>
+
+    <div class="archive-header">
+        <h2>财务大侦探：数据核查专卷</h2>
+        <div class="progress-tag" id="progress">当前卷宗：1 / 8</div>
+    </div>
+
+    <div class="case-file-container">
+        <div class="paper-sheet" id="paper-sheet">
+            <div class="paper-clip"></div>
+
+            <div class="case-title" id="case-tag">加载中...</div>
+            <div class="question-text" id="q-text"></div>
+
+            <div id="interaction-area">
+                </div>
+
+            <div class="stamp" id="stamp-mark"></div>
+
+            <div class="verdict-box" id="verdict-box">
+                <div class="verdict-title">结案报告 (Case Summary)</div>
+                <div class="verdict-text" id="verdict-text"></div>
+                <button class="next-btn" id="next-btn" onclick="nextCase()">归档并调阅下份卷宗</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const cases = [
+            {
+                type: 'mcq',
+                tag: '案件 01：资金盘点',
+                q: "在核对企业的“现金及现金等价物”时，以下哪项资产因为变现周期长、风险大，绝对不能被算作现金等价物？",
+                options: ["存放在财务保险柜里的库存现金", "企业随时可以支取的银行活期存款", "购买的三个月内就会到期的短期国债", "打算长期持有的其他公司股票投资"],
+                correct: 3,
+                a: "现金等价物的核心特征是“期限短、流动性强、风险小”。长期股票投资受市场价格波动影响巨大，且短期内难以确定其变现金额，因此被排除在外。"
+            },
+            {
+                type: 'mcq',
+                tag: '案件 02：识别造假手段',
+                q: "你在审计中发现，某企业同时虚构了一笔庞大的销售收入（现金流入）和一笔购买原材料的款项（现金流出），以此来掩盖资金缺口。这种舞弊手法主要污染了哪一类现金流？",
+                options: ["经营活动现金流量", "投资活动现金流量", "筹资活动现金流量", "汇率变动影响额"],
+                correct: 0,
+                a: "这是一种典型的虚增经营活动现金流量的手法。企业通过“自编自导”的购销业务，在不改变期末货币总存量的情况下，制造出主营业务繁荣的假象。"
+            },
+            {
+                type: 'tf',
+                tag: '案件 03：生命周期推理',
+                q: "逻辑推演：一家公司的现金流呈现出“经营为正、投资为负、筹资为正”的格局，这通常说明该公司正处于濒临破产的衰退期。",
+                options: ["核查属实 (True)", "存在谬误 (False)"],
+                correct: 1, // False
+                a: "推理错误。这种格局（+，-，+）是典型的成长期企业特征。企业依靠主业开始赚钱，但为了扩张还在大量购建资产（投资为负），并且能顺利拿到外部融资（筹资为正）来支持发展。"
+            },
+            {
+                type: 'mcq',
+                tag: '案件 04：利润质量评估',
+                q: "老板看到利润表上显示今年赚了1000万，但账上根本没钱发工资。为了向老板证明这1000万的利润大部分只是挂在账上的“应收账款”，你应该调出哪个指标给他看？",
+                options: ["现金流动负债比", "营业收入现金比率", "盈余现金保障倍数", "现金到期债务比"],
+                correct: 2,
+                a: "盈余现金保障倍数（经营现金净流入 ÷ 净利润）是检验利润含金量的试金石。如果这个指标远小于1，说明纸面上的利润并没有转化为企业口袋里的真金白银。"
+            },
+            {
+                type: 'fill',
+                tag: '案件 05：Python 纵向拼接',
+                q: "数据清洗任务：你需要将第一季度的利润表和第二季度的利润表按行（纵向）堆叠在一起。在 Pandas 中，你应该调用 pd.concat() 函数，并将其 axis 参数设置为 ______。",
+                placeholder: "输入单个数字",
+                correct: "0",
+                a: "在 Pandas 的矩阵操作中，axis=0 代表沿着纵轴（行）进行拼接，这就像把两张相同格式的报表纸上下用订书机钉在一起。"
+            },
+            {
+                type: 'fill',
+                tag: '案件 06：Python 匹配对齐',
+                q: "数据清洗任务：在合并资产负债表和利润表时，你只想保留那些在两张表中同时拥有相同“公司ID”的数据行，其他匹配不上的全丢弃。这种连接方式称为内连接，你在 merge() 函数中需设置 how='______'。",
+                placeholder: "输入纯英文参数值",
+                correct: "inner",
+                a: "内连接（inner join）是最严谨的数据匹配方式。它像一个严格的安检员，只有在左右两张数据表中都能找到对应身份标识（如公司ID）的记录，才允许它们合并成新的一行。"
+            },
+            {
+                type: 'fill',
+                tag: '案件 07：Python 趋势计算',
+                q: "数据分析任务：要快速计算本月现金流相比上个月的“环比变化率”，Pandas 提供了一个一键计算百分比变化的内置函数，它的名称是 ______()。",
+                placeholder: "输入纯英文函数名",
+                correct: "pct_change",
+                a: "pct_change() 是处理时间序列数据时的核心武器。它默认计算当前行与上一行的差值比例，配合乘以 100，就能瞬间得到直观的环比或同比变动百分比。"
+            },
+            {
+                type: 'mcq',
+                tag: '案件 08：企业举债解析',
+                q: "企业的投资活动现金流出中，如果是为了“闲置资金保值增值”而购买了大量的短期理财或股票，这种行为在分析时通常被视作什么？",
+                options: ["主业相关的资本性扩张", "脱离主业的金融投机或理财", "吸收外部投资者的资金", "正常偿还到期的银行债务"],
+                correct: 1,
+                a: "购买金融资产属于投资活动，但它并不能提升企业的核心主营业务能力。如果这部分支出占比过大，可能意味着企业缺乏实体投资机会，或者存在一定的金融投机风险。"
+            }
+        ];
+
+        let currentIndex = 0;
+        const qText = document.getElementById('q-text');
+        const caseTag = document.getElementById('case-tag');
+        const interactionArea = document.getElementById('interaction-area');
+        const stampMark = document.getElementById('stamp-mark');
+        const verdictBox = document.getElementById('verdict-box');
+        const verdictText = document.getElementById('verdict-text');
+        const progress = document.getElementById('progress');
+        const nextBtn = document.getElementById('next-btn');
+
+        function loadCase() {
+            // 重置状态
+            stampMark.className = 'stamp';
+            verdictBox.classList.remove('show');
+            interactionArea.innerHTML = '';
+
+            const current = cases[currentIndex];
+            progress.innerText = `当前卷宗：${currentIndex + 1} / ${cases.length}`;
+            caseTag.innerText = current.tag;
+            qText.innerText = current.q;
+
+            if (current.type === 'mcq' || current.type === 'tf') {
+                const group = document.createElement('div');
+                group.className = 'options-group';
+                current.options.forEach((opt, idx) => {
+                    const btn = document.createElement('button');
+                    btn.className = 'btn-option';
+                    btn.innerText = opt;
+                    btn.onclick = () => checkAnswer(idx, btn);
+                    group.appendChild(btn);
+                });
+                interactionArea.appendChild(group);
+            } else if (current.type === 'fill') {
+                const group = document.createElement('div');
+                group.className = 'input-group';
+                group.innerHTML = `
+                    <input type="text" id="caseInput" class="case-input" placeholder=">> ${current.placeholder}" autocomplete="off">
+                    <button class="submit-btn" onclick="checkFill()">提交核验</button>
+                `;
+                interactionArea.appendChild(group);
+            }
+        }
+
+        function triggerStamp(isCorrect) {
+            if (isCorrect) {
+                stampMark.innerText = "核验通过\nAPPROVED";
+                stampMark.classList.add('approved');
+            } else {
+                stampMark.innerText = "存在疑点\nREJECTED";
+                stampMark.classList.add('rejected');
+            }
+            stampMark.classList.add('show');
+
+            // 延迟显示解析
+            setTimeout(() => {
+                verdictText.innerText = cases[currentIndex].a;
+                verdictBox.classList.add('show');
+                if (currentIndex === cases.length - 1) {
+                    nextBtn.innerText = "完成所有案件核查";
+                }
+            }, 600);
+        }
+
+        function checkAnswer(selectedIndex, btnEl) {
+            const current = cases[currentIndex];
+            const allBtns = interactionArea.querySelectorAll('.btn-option');
+            allBtns.forEach(b => b.disabled = true);
+
+            const isCorrect = (selectedIndex === current.correct);
+            if (isCorrect) {
+                btnEl.style.backgroundColor = '#f4eedd';
+                btnEl.style.borderColor = '#278f44';
+                btnEl.style.color = '#278f44';
+                btnEl.style.fontWeight = 'bold';
+            } else {
+                btnEl.style.backgroundColor = '#f4eedd';
+                btnEl.style.borderColor = '#a83232';
+                btnEl.style.color = '#a83232';
+                btnEl.style.textDecoration = 'line-through';
+                // 标出正确答案
+                allBtns[current.correct].style.borderColor = '#278f44';
+                allBtns[current.correct].style.color = '#278f44';
+            }
+            triggerStamp(isCorrect);
+        }
+
+        function checkFill() {
+            const current = cases[currentIndex];
+            const inputEl = document.getElementById('caseInput');
+            const submitBtn = interactionArea.querySelector('.submit-btn');
+
+            inputEl.disabled = true;
+            submitBtn.disabled = true;
+
+            const val = inputEl.value.trim().toLowerCase();
+            const isCorrect = (val === current.correct.toLowerCase());
+
+            if (isCorrect) {
+                inputEl.style.color = '#278f44';
+                inputEl.style.borderColor = '#278f44';
+            } else {
+                inputEl.style.color = '#a83232';
+                inputEl.style.borderColor = '#a83232';
+                inputEl.value = `勘误: 应为 [ ${current.correct} ]`;
+            }
+            triggerStamp(isCorrect);
+        }
+
+        function nextCase() {
+            if (currentIndex < cases.length - 1) {
+                currentIndex++;
+                loadCase();
+            } else {
+                interactionArea.innerHTML = '';
+                stampMark.className = 'stamp';
+                qText.innerHTML = `<span style="color:#278f44; font-weight:bold;">全部卷宗已核查完毕。</span><br><br>你的财务数据洞察能力已符合系统要求，档案即将封存。`;
+                caseTag.innerText = "任务终结";
+                verdictBox.style.display = 'none';
+            }
+        }
+
+        // 初始化启动
+        loadCase();
+    </script>
+</body>
+</html>
